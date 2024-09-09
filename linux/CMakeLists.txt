@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(runner LANGUAGES CXX)
 
-set(BINARY_NAME "fintech_dashboard_clone")
-set(APPLICATION_ID "com.example.fintech_dashboard_clone")
+set(BINARY_NAME "nexus_admin")
+set(APPLICATION_ID "com.example.nexus_admin")
 
 cmake_policy(SET CMP0063 NEW)
 

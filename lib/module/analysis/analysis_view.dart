@@ -1,10 +1,10 @@
 import 'package:animated_shimmer/animated_shimmer.dart';
-import 'package:fintech_dashboard_clone/layout/app_layout.dart';
-import 'package:fintech_dashboard_clone/module/analysis/analysis_controller.dart';
-import 'package:fintech_dashboard_clone/module/auth/auth_service.dart';
-import 'package:fintech_dashboard_clone/styles/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lexus_admin/layout/app_layout.dart';
+import 'package:lexus_admin/module/analysis/analysis_controller.dart';
+import 'package:lexus_admin/module/auth/auth_service.dart';
+import 'package:lexus_admin/styles/styles.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class AnalysisView extends StatelessWidget {
@@ -46,6 +46,13 @@ class AnalysisView extends StatelessWidget {
                             image: "assets/lightbulb.png",
                             text: "Question",
                           ),
+                          const SizedBox(width: 20),
+                          MenuWidget(
+                            index: 3,
+                            color: Theme.of(context).colorScheme.primary,
+                            image: "assets/information.png",
+                            text: "Help",
+                          ),
                         ],
                       ),
                     ),
@@ -59,6 +66,8 @@ class AnalysisView extends StatelessWidget {
 
                               case 2:
                                 return Questionsview();
+                              case 3:
+                                return HelpView();
 
                               default:
                                 return TeacherView();
@@ -167,6 +176,85 @@ class TeacherView extends StatelessWidget {
                   ])),
         ),
       ],
+    );
+  }
+}
+
+class HelpView extends StatelessWidget {
+  HelpView({
+    Key? key,
+  }) : super(key: key);
+
+  var controller = Get.isRegistered<AnalysisController>()
+      ? Get.find<AnalysisController>()
+      : Get.put(AnalysisController());
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Row(
+        // Use Row instead of Column
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(
+                  color: Colors.grey, // Set border color here
+                  width: 2, // Set border width here
+                ),
+              ),
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text('Subject ID')),
+                  DataColumn(label: Text('Subject Name')),
+                ],
+                rows: controller.boardModel!.boards!
+                    .map(
+                      (subject) => DataRow(
+                        cells: [
+                          DataCell(Text(subject.id.toString())),
+                          DataCell(Text(subject.name.toString())),
+                        ],
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ),
+          const SizedBox(width: 20), // Add spacing between DataTables
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(
+                  color: Colors.grey, // Set border color here
+                  width: 2, // Set border width here
+                ),
+              ),
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text('Board ID')),
+                  DataColumn(label: Text('Board Name')),
+                ],
+                rows: controller.subjectModel!.subjects!
+                    .map(
+                      (board) => DataRow(
+                        cells: [
+                          DataCell(Text(board.id.toString())),
+                          DataCell(Text(board.name.toString())),
+                        ],
+                      ),
+                    )
+                    .toList(),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

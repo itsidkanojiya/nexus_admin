@@ -12,8 +12,10 @@ import 'package:lexus_admin/repository/base.dart';
 class AuthRepository {
   Future<String> signIn(Map<String, dynamic> map) async {
     try {
-      final response =
-          await http.post(Uri.parse('${Base.api}/login'), body: map);
+      final response = await http.post(
+        Uri.parse('${Base.api}/login'),
+        body: map,
+      );
       final body = jsonDecode(response.body);
       debugPrint('signIn body: $body');
       if (response.statusCode == 200 || response.statusCode == 201) {

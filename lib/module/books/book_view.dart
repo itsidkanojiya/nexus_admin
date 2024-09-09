@@ -25,6 +25,20 @@ class BookView extends StatelessWidget {
             ElevatedButton.icon(
                 onPressed: () {
                   controller.clearForm();
+                  Get.dialog(addSubject(
+                    controller: controller,
+                    id: 0,
+                    formKey: formKey,
+                  ));
+                },
+                icon: const Icon(Icons.add),
+                label: const Text('Add Subject')),
+            const SizedBox(
+              width: 5,
+            ),
+            ElevatedButton.icon(
+                onPressed: () {
+                  controller.clearForm();
                   Get.dialog(addBook(
                     controller: controller,
                     id: 0,
@@ -58,7 +72,7 @@ class BookView extends StatelessWidget {
                     crossAxisSpacing: 8.0,
                     mainAxisSpacing: 10.0,
                   ),
-                  itemCount: controller.bookModel?.books.length,
+                  itemCount: controller.bookModel?.books?.length,
                   itemBuilder: (context, index) {
                     return BookWidget(
                       index: index,
@@ -86,6 +100,83 @@ class BookView extends StatelessWidget {
         )
       ]),
     ));
+  }
+}
+
+class addSubject extends StatelessWidget {
+  const addSubject(
+      {Key? key,
+      required this.controller,
+      required this.id,
+      required this.formKey})
+      : super(key: key);
+  final int id;
+  final BookController controller;
+  final GlobalKey<FormState> formKey;
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      title: Center(
+        child: Text('${id == 0 ? 'Add' : 'Edit'} Subject'),
+      ),
+      content: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SizedBox(
+            width: 300,
+            child: Form(
+              key: formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    ' Subject Name:',
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  TextFormField(
+                    controller: controller.subjectText,
+                    // decoration: const InputDecoration(
+                    //   labelText: '0',
+                    // ),
+                    validator: (value) {
+                      final bool emailValid = RegExp(
+                              r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                          .hasMatch(value ?? "");
+                      if (value!.isEmpty) {
+                        return 'Please enter your chapter number';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      actions: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () async {
+                if (formKey.currentState!.validate()) {
+                  controller.addSubject();
+                  controller.fetchData();
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text('${id == 0 ? 'Add' : 'Edit'} Subject'),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }
 
@@ -192,6 +283,46 @@ class addBook extends StatelessWidget {
                           ),
                         ),
                       )),
+                  SizedBox(height: Styles.defaultPadding),
+                  const Text(
+                    ' Chapter No:',
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  TextFormField(
+                    controller: controller.cnumberText,
+                    // decoration: const InputDecoration(
+                    //   labelText: '0',
+                    // ),
+                    validator: (value) {
+                      if (value!.isEmpty || value.isAlphabetOnly) {
+                        return 'Please enter your chapter number';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: Styles.defaultPadding),
+                  const Text(
+                    ' Chapter Name:',
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  TextFormField(
+                    controller: controller.cnameText,
+                    // decoration: const InputDecoration(
+                    //   labelText: 'Name',
+                    // ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter your chapter number';
+                      }
+                      return null;
+                    },
+                  ),
                   SizedBox(height: Styles.defaultPadding),
                   const Text(
                     ' Choose Board:',
@@ -363,7 +494,7 @@ class BookWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Image.network(
-            controller.bookModel?.books[index].cover_link ?? '',
+            controller.bookModel?.books?[index].coverLink ?? '',
             height: 200,
             width: double.infinity,
             fit: BoxFit.fill,
@@ -373,13 +504,16 @@ class BookWidget extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  controller.bookModel?.books[index].name ?? '',
+                  controller.bookModel?.books?[index].name ?? '',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
               const Expanded(child: SizedBox()),
               IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    controller.deleteBook(
+                        controller.bookModel?.books?[index].id ?? 0);
+                  },
                   icon: const Icon(
                     Icons.delete,
                     color: Colors.red,

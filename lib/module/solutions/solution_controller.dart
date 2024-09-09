@@ -1,11 +1,11 @@
 // Solution_controller.dart
-import 'package:fintech_dashboard_clone/models/board_model.dart';
-import 'package:fintech_dashboard_clone/models/solution_model.dart';
-import 'package:fintech_dashboard_clone/models/subject_model.dart';
-import 'package:fintech_dashboard_clone/repository/book_repository.dart';
-import 'package:fintech_dashboard_clone/repository/solution_repository.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:lexus_admin/models/board_model.dart';
+import 'package:lexus_admin/models/solution_model.dart';
+import 'package:lexus_admin/models/subject_model.dart';
+import 'package:lexus_admin/repository/book_repository.dart';
+import 'package:lexus_admin/repository/solution_repository.dart';
 
 class SolutionController extends GetxController {
   var selectedBoard = Rx<Boards?>(null);

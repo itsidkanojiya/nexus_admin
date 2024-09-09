@@ -28,8 +28,18 @@ class Users {
   int? std;
   String? school;
   String? subject;
+  String? email;
+  int? verified;
 
-  Users({this.id, this.name, this.number, this.std, this.school, this.subject});
+  Users(
+      {this.id,
+      this.name,
+      this.number,
+      this.std,
+      this.school,
+      this.subject,
+      this.email,
+      this.verified});
 
   Users.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -38,6 +48,8 @@ class Users {
     std = json['std'];
     school = json['school'];
     subject = json['subject'];
+    email = json['email'];
+    verified = json['verified'];
   }
 
   Map<String, dynamic> toJson() {
@@ -48,6 +60,8 @@ class Users {
     data['std'] = std;
     data['school'] = school;
     data['subject'] = subject;
+    data['email'] = email;
+    data['verified'] = verified;
     return data;
   }
 }

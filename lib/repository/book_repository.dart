@@ -37,8 +37,8 @@ class BookRepository {
         'Content-Type': 'application/json; charset=UFT-8',
         HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
       };
-      var request = http.MultipartRequest(
-          'POST', Uri.parse('http://127.0.0.1:8000/api/add-book'));
+      var request =
+          http.MultipartRequest('POST', Uri.parse('${Base.api}/add-book'));
 
       request.files
           .add(await http.MultipartFile.fromPath('cover_link', coverImage));
@@ -68,6 +68,56 @@ class BookRepository {
     }
     Get.rawSnackbar(
         message: 'Book Added failed!', backgroundColor: Colors.redAccent);
+    return false;
+  }
+
+  Future<bool> addSubject(Map<String, dynamic> map) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${Base.api}/add-subject'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(map),
+      );
+
+      final body = jsonDecode(response.body);
+      debugPrint('addSubject body: $body');
+      if (response.statusCode == 201) {
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Error While addSubject() ${e.toString()}');
+      return false;
+    }
+    Get.rawSnackbar(
+        message: 'Student Added failed!', backgroundColor: Colors.redAccent);
+    return false;
+  }
+
+  Future<bool> deleteBook(int id) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('${Base.api}/delete-book?id=$id'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
+        },
+      );
+
+      final body = jsonDecode(response.body);
+      debugPrint('deleteBook body: $body');
+      if (response.statusCode == 200) {
+        Get.rawSnackbar(
+            message: 'Deleted Sucessfully!', backgroundColor: Colors.green);
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Error While deleteTeacher() ${e.toString()}');
+      return Future.error(e);
+    }
+    Get.rawSnackbar(
+        message: 'Something went wrong!', backgroundColor: Colors.redAccent);
     return false;
   }
 

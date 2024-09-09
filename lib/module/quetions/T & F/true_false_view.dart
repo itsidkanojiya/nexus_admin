@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:animated_shimmer/animated_shimmer.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lexus_admin/layout/app_layout.dart';
 import 'package:lexus_admin/models/board_model.dart';
+import 'package:lexus_admin/models/question_model.dart';
+import 'package:lexus_admin/models/subject_model.dart';
 import 'package:lexus_admin/module/quetions/T%20&%20F/true_false_controller.dart';
 import 'package:lexus_admin/styles/styles.dart';
 import 'package:lottie/lottie.dart';
@@ -14,6 +19,83 @@ class TrueOrFalseView extends StatelessWidget {
   var controller = Get.isRegistered<TrueFalseController>()
       ? Get.find<TrueFalseController>()
       : Get.put(TrueFalseController());
+
+  Future<void> _showExcelInputDialog(BuildContext context) async {
+    final excelKey = GlobalKey<FormState>();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Enter Excel Sheet '),
+          content: Obx(
+            () => Form(
+              key: excelKey,
+              child: TextFormField(
+                readOnly: true,
+                onTap: () async {
+                  try {
+                    FilePickerResult? result =
+                        await FilePicker.platform.pickFiles(
+                      type: FileType.custom,
+                      allowedExtensions: ['xlsx'],
+                    );
+
+                    if (result != null) {
+                      String? filePath = result.files.single.path;
+                      controller.file.value = filePath!;
+                      print("File path: ${controller.file.value}");
+                    } else {}
+                  } catch (e) {
+                    print("Error picking file: $e");
+                  }
+                },
+                validator: (value) {
+                  if (value == '' || value == 'No file selected') {
+                    return 'Please choose a excel';
+                  }
+                  return null;
+                },
+                decoration: const InputDecoration(
+                  suffixIcon: Icon(Icons.upload),
+                ),
+                controller: TextEditingController(
+                  text: controller.file.value != ''
+                      ? controller.file.value
+                      : 'No file selected',
+                ),
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            Obx(
+              () => !controller.isAdding.value
+                  ? TextButton(
+                      onPressed: () async {
+                        controller.isExcelValid.value = true;
+                        if (excelKey.currentState!.validate()) {
+                          controller.processExcelData(
+                              File(
+                                controller.file.value,
+                              ),
+                              context);
+                        }
+                      },
+                      child: const Text('Submit'),
+                    )
+                  : ElevatedButton(
+                      onPressed: () {},
+                      child: const SizedBox(
+                          height: 15,
+                          width: 15,
+                          child: CircularProgressIndicator()),
+                    ),
+            )
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppLayout(
@@ -36,8 +118,8 @@ class TrueOrFalseView extends StatelessWidget {
                 ElevatedButton.icon(
                     onPressed: () {
                       controller.clearForm();
-                      // _showExcelInputDialog(
-                      //     context); // Call the function to show input dialog
+                      _showExcelInputDialog(
+                          context); // Call the function to show input dialog
                     },
                     icon: const Icon(Icons.upload),
                     label: const Text('Upload Excel')),
@@ -60,10 +142,10 @@ class TrueOrFalseView extends StatelessWidget {
                 ),
                 ElevatedButton.icon(
                     onPressed: () {
-                      // controller.downloadExcel(
-                      //     context,
-                      //     controller.QuestionModel ?? UsersModel(),
-                      //     'active_teacherlist');
+                      controller.downloadExcel(
+                          context,
+                          controller.questionModel ?? QuestionModel(),
+                          'true&false');
                     },
                     icon: const Icon(Icons.download),
                     label: const Text('Download Data')),
@@ -76,6 +158,22 @@ class TrueOrFalseView extends StatelessWidget {
                     },
                     icon: const Icon(Icons.refresh),
                     label: const Text('Refresh')),
+                SizedBox(
+                  width: Styles.defaultPadding,
+                ),
+                Obx(() => Visibility(
+                      visible: controller.isRowSelected.value,
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.delete),
+                        label: const Text('Delete'),
+                        onPressed: () {
+                          controller.MultideleteMcq(controller.firstElements);
+
+                          // Handle delete action here
+                          controller.clearSelectedRow();
+                        },
+                      ),
+                    )),
               ],
             ),
             SizedBox(height: Styles.defaultPadding * 2),
@@ -98,6 +196,47 @@ class TrueOrFalseView extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(18),
                                         color: Colors.white),
                                     child: SfDataGrid(
+                                      onSelectionChanged:
+                                          (addedRows, removedRows) {
+                                        List<List<dynamic>> selectedRowsData =
+                                            []; //SelectedRows
+                                        for (var selectedRowIndex in controller
+                                            .dataGridController.selectedRows) {
+                                          List<dynamic> rowData = [];
+                                          var selectedRowCells =
+                                              selectedRowIndex.getCells();
+                                          for (var cell in selectedRowCells) {
+                                            rowData.add(cell
+                                                .value); // Convert cell value to string
+                                          }
+                                          selectedRowsData.add(rowData);
+                                        }
+
+                                        controller.firstElements
+                                            .clear(); // Clear previous selected elements
+
+                                        for (var rowData in selectedRowsData) {
+                                          if (rowData.isNotEmpty) {
+                                            controller.firstElements
+                                                .add(rowData[0]);
+                                          }
+                                        }
+
+                                        if (controller
+                                            .firstElements.isNotEmpty) {
+                                          controller.setSelectedRow(
+                                              controller.firstElements.first);
+                                        } else {
+                                          controller.clearSelectedRow();
+                                        }
+                                        // Update visibility of delete button
+                                        controller.updateDeleteButtonVisibility(
+                                            controller
+                                                .firstElements.isNotEmpty);
+                                      },
+                                      controller: controller.dataGridController,
+                                      showCheckboxColumn: true,
+                                      selectionMode: SelectionMode.multiple,
                                       rowsPerPage: 10,
                                       allowFiltering: true,
                                       allowSorting: true,
@@ -107,21 +246,16 @@ class TrueOrFalseView extends StatelessWidget {
                                           (BuildContext context,
                                               DataGridRow row, int rowIndex) {
                                         return GestureDetector(
-                                            onTap: () async {
-                                              controller.makeDeactive(controller
-                                                      .questionModel
-                                                      ?.questions?[rowIndex]
-                                                      .id ??
-                                                  0);
-                                            },
-                                            child: Container(
-                                                color: Colors.red,
-                                                padding: const EdgeInsets.only(
-                                                    left: 30.0),
-                                                alignment: Alignment.centerLeft,
-                                                child: const Text('Deactivate',
-                                                    style: TextStyle(
-                                                        color: Colors.white))));
+                                            // onTap: () async {},
+                                            // child: Container(
+                                            //     color: Colors.red,
+                                            //     padding: const EdgeInsets.only(
+                                            //         left: 30.0),
+                                            //     alignment: Alignment.centerLeft,
+                                            //     child: const Text('Deactivate',
+                                            //         style: TextStyle(
+                                            //             color: Colors.white)))
+                                            );
                                       },
                                       onSwipeUpdate: (details) {
                                         return true;
@@ -132,7 +266,7 @@ class TrueOrFalseView extends StatelessWidget {
                                               DataGridRow row, int rowIndex) {
                                         return GestureDetector(
                                             onTap: () async {
-                                              controller.deleteTeacher(
+                                              controller.deleteTrueFalse(
                                                   controller
                                                           .questionModel
                                                           ?.questions?[rowIndex]
@@ -151,7 +285,8 @@ class TrueOrFalseView extends StatelessWidget {
                                                         color: Colors.white))));
                                       },
                                       source: controller.truefalseDataSource,
-                                      columnWidthMode: ColumnWidthMode.fill,
+                                      columnWidthMode:
+                                          ColumnWidthMode.lastColumnFill,
                                       columns: <GridColumn>[
                                         GridColumn(
                                             columnWidthMode:
@@ -284,6 +419,44 @@ class addTrueFalse extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(height: Styles.defaultPadding),
+                  const Text(
+                    ' Choose Subject:',
+                    style: TextStyle(fontSize: 15),
+                  ),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Obx(() => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: DropdownButtonFormField<Subjects>(
+                            hint: const Text('Select a Subject'),
+                            validator: (value) {
+                              if (value == null) {
+                                return 'Please select a subject';
+                              }
+                              return null;
+                            },
+                            value: controller.selectedSubject.value,
+                            onChanged: (Subjects? newValue) {
+                              controller.selectedSubject.value = newValue;
+                            },
+                            items:
+                                controller.subjectModel?.subjects?.map((board) {
+                                      return DropdownMenuItem<Subjects>(
+                                        value: board,
+                                        child: Text(board.name ?? ''),
+                                      );
+                                    }).toList() ??
+                                    [],
+                          ),
+                        )),
+                  ),
+                  SizedBox(height: Styles.defaultPadding),
                   TextFormField(
                     maxLines: 5,
                     controller: controller.quetionText,
@@ -307,31 +480,25 @@ class addTrueFalse extends StatelessWidget {
                   ),
                   Obx(() => Container(
                         decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Colors.white),
+                          borderRadius: BorderRadius.circular(10),
+                          color: Colors.white,
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: DropdownButtonFormField<String>(
-                            validator: (value) {
-                              if (value == null) {
-                                return 'Please select a answer';
-                              }
-                              return null;
-                            },
                             value: controller.selectedTrueFalse.value,
-                            onChanged: (String? newStandard) {
-                              if (newStandard != null) {
-                                controller.selectedTrueFalse.value =
-                                    newStandard;
-                              }
+                            onChanged: (String? newAnswer) {
+                              controller.selectedTrueFalse.value = newAnswer!;
                             },
                             items: controller.truefalse
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
+                                .map<DropdownMenuItem<String>>(
+                              (String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              },
+                            ).toList(),
                           ),
                         ),
                       )),
@@ -342,12 +509,6 @@ class addTrueFalse extends StatelessWidget {
                     decoration: const InputDecoration(
                       labelText: 'Solution',
                     ),
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Please enter your solution';
-                      }
-                      return null;
-                    },
                   ),
                   SizedBox(height: Styles.defaultPadding),
                   const Text(

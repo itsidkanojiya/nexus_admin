@@ -6,12 +6,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/src/material/colors.dart';
 import 'package:get/get.dart';
 import 'package:lexus_admin/models/board_model.dart';
-import 'package:lexus_admin/models/question_model.dart';
+import 'package:lexus_admin/models/mcq_modal.dart';
 import 'package:lexus_admin/models/subject_model.dart';
-import 'package:lexus_admin/models/user_model.dart';
 import 'package:lexus_admin/repository/book_repository.dart';
 import 'package:lexus_admin/repository/quetion_repository.dart';
-import 'package:lexus_admin/repository/teacher_repository.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
@@ -22,8 +20,8 @@ class McqController extends GetxController {
   var file = ''.obs;
   var selectedBoard = Rx<Boards?>(null);
   RxBool isExcelValid = true.obs;
-  QuestionModel? questionModel;
-
+  McqModel? questionModel;
+  final DataGridController dataGridController = DataGridController();
   late McqDataSource mcqDataSource;
   BoardModel? boardModel;
   var answerText = ''.obs;
@@ -33,25 +31,35 @@ class McqController extends GetxController {
   var option3Text = TextEditingController();
   var option4Text = TextEditingController();
   var solutionText = TextEditingController();
+  var selectedChapter = '1'.obs;
   var selectedStandard = '1'.obs;
   var optionValue = 'Option 1'.obs;
   RxBool isPasswordVisible = false.obs;
-
+  var selectedSubject = Rx<Subjects?>(null);
   SubjectModel? subjectModel;
-  final List<String> standardLevels = [
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-    '7',
-    '8',
-    '9',
-    '10',
-    '11',
-    '12',
-  ];
+  var isRowSelected = false.obs;
+  var selectedRow = 0.obs;
+  var isDeleteButtonVisible = false.obs;
+  List<int> firstElements = [];
+  void setSelectedRow(dynamic row) {
+    selectedRow.value = row;
+    isRowSelected.value = true;
+  }
+
+  void clearSelectedRow() {
+    selectedRow.value = 0;
+    firstElements = [];
+    isRowSelected.value = false;
+  }
+
+  void updateDeleteButtonVisibility(bool isVisible) {
+    isDeleteButtonVisible.value = isVisible;
+  }
+
+  final List<String> standardLevels =
+      List.generate(12, (index) => (index + 1).toString());
+  final List<String> chapterNo =
+      List.generate(50, (index) => (index + 1).toString());
   final List<String> option = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
   void setAnswer() {
     if (optionValue.value == 'Option 1') {
@@ -76,6 +84,7 @@ class McqController extends GetxController {
     isLoading(true);
     boardModel = await BookRepository().getBoard();
     questionModel = await QuestionRepository().getMcq();
+    subjectModel = await BookRepository().getSubject();
     mcqDataSource = McqDataSource(mcqData: questionModel?.questions ?? []);
     isLoading(false);
   }
@@ -89,24 +98,34 @@ class McqController extends GetxController {
         .tables[excel.tables.keys.first]; // Assuming 'Sheet1' is the sheet name
 
     for (var row in table!.rows) {
-      var name = row[0]; // Assuming name is in the first column
-      var number = row[1]; // Assuming number is in the second column
-      var subject = row[2]; // Assuming subject is in the third column
-      var std = row[3]; // Assuming std is in the fourth column
-      var school = row[4]; // Assuming school is in the fifth column
-      var password = row[5]; // Assuming password is in the sixth column
-      // Create a map for each teacher's details
+      var board = row[0]; // Assuming name is in the first column
+      var std = row[1]; // Assuming number is in the second column
+      var question = row[2]; // Assuming subject is in the third column
+      var option1 = row[3]; // Assuming subject is in the third column
+      var option2 = row[4]; // Assuming subject is in the third column
+      var option3 = row[5]; // Assuming subject is in the third column
+      var option4 = row[6]; // Assuming subject is in the third column
+      var answer = row[7]; // Assuming std is in the fourth column
+      var solution = row[8]; // Assuming school is in the fifth column
+      var subject = row[9]; // Assuming school is in the fifth column
+      var chapter = row[9]; // Assuming school is in the fifth column
+
       var map = {
-        "name": name?.value.toString(),
-        "number":
-            number != null ? int.tryParse(number.value.toString()) ?? 0 : 0,
-        "subject": subject?.value.toString(),
-        "std": std != null ? int.tryParse(std.value.toString()) ?? 0 : 0,
-        "school": school?.value.toString(),
-        "password": password?.value.toString(),
+        'board': board != null ? int.tryParse(board.value.toString()) ?? 0 : 0,
+        'std': std != null ? int.tryParse(std.value.toString()) ?? 0 : 0,
+        'question': question?.value.toString(),
+        'option1': option1?.value.toString() ?? '',
+        'option2': option2?.value.toString() ?? '',
+        'option3': option3?.value.toString() ?? '',
+        'option4': option4?.value.toString() ?? '',
+        'solution': solution?.value.toString(),
+        'answer': answer?.value.toString(),
+        'chapter': chapter?.value.toString(),
+        'subject':
+            subject != null ? int.tryParse(subject.value.toString()) ?? 0 : 0,
       };
       print(map);
-      var result = await TeacherRepository().addTeacher(map);
+      var result = await QuestionRepository().addMcq(map);
       if (result == false) {
         Get.rawSnackbar(
             message: 'error in excel row ${row[0]!.rowIndex}',
@@ -120,7 +139,7 @@ class McqController extends GetxController {
     if (isExcelValid.value == true) {
       isAdding.value = false;
       Get.rawSnackbar(
-          message: '${table.maxRows} teachers have been successfully added!',
+          message: '${table.maxRows} questions have been successfully added!',
           backgroundColor: Colors.green);
       fetchData();
       Navigator.of(context).pop();
@@ -128,24 +147,40 @@ class McqController extends GetxController {
   }
 
   Future<void> downloadExcel(
-      BuildContext context, UsersModel userlist, String name) async {
+      BuildContext context, McqModel questions, String name) async {
     List<List<TextCellValue>> excelData = [
       [
         const TextCellValue('ID'),
-        const TextCellValue('Name'),
-        const TextCellValue('Number'),
-        const TextCellValue('Standard'),
-        const TextCellValue('School')
+        const TextCellValue('Board'),
+        const TextCellValue('Standard '),
+        const TextCellValue('Subject'),
+        const TextCellValue('Chapter'),
+        const TextCellValue('Question'),
+        const TextCellValue('Answer'),
+        const TextCellValue('option 1'),
+        const TextCellValue('option 2'),
+        const TextCellValue('option 3'),
+        const TextCellValue('option 4'),
+        const TextCellValue('Solution'),
       ]
     ];
 
-    for (Users user in userlist.users ?? []) {
+    for (Questions user in questions.questions ?? []) {
+      List<String?> options = user.options ??
+          List.filled(4, ''); // Fill missing options with empty strings
       excelData.add([
         TextCellValue(user.id.toString()),
-        TextCellValue(user.name.toString()),
-        TextCellValue(user.number.toString()),
+        TextCellValue(user.boardName.toString()),
         TextCellValue(user.std.toString()),
-        TextCellValue(user.school.toString()),
+        TextCellValue(user.subject.toString()),
+        TextCellValue(user.chapter.toString()),
+        TextCellValue(user.question.toString()),
+        TextCellValue(user.answer.toString()),
+        TextCellValue(options.isNotEmpty ? options[0]?.toString() ?? '' : ''),
+        TextCellValue(options.length > 1 ? options[1]?.toString() ?? '' : ''),
+        TextCellValue(options.length > 2 ? options[2]?.toString() ?? '' : ''),
+        TextCellValue(options.length > 3 ? options[3]?.toString() ?? '' : ''),
+        TextCellValue(user.solution.toString()),
       ]);
     }
 
@@ -167,44 +202,64 @@ class McqController extends GetxController {
 
     // Trigger file download
     final bytes = File(excelPath).readAsBytesSync();
-    FileSaveHelper.saveAndLaunchFile(bytes, 'users.xlsx');
+    FileSaveHelper.saveAndLaunchFile(bytes, '$name.xlsx');
     Get.rawSnackbar(
         message: 'file is stored in $excelPath', backgroundColor: Colors.green);
   }
 
-  void makeActive(int id) async {
+  void deleteMcq(int id) async {
     isLoading(true);
-    await TeacherRepository().makActive(id);
+    bool sucess;
+    sucess = await QuestionRepository().deleteMcq(id);
     isLoading(false);
+    if (sucess == true) {
+      Get.rawSnackbar(
+          message: 'Deleted Sucessfully!', backgroundColor: Colors.green);
+    }
     fetchData();
   }
 
-  void makeDeactive(int id) async {
+  void MultideleteMcq(List<int> ids) async {
     isLoading(true);
-    await TeacherRepository().makDeactive(id);
-    isLoading(false);
-    fetchData();
-  }
 
-  void deleteTeacher(int id) async {
-    isLoading(true);
-    await TeacherRepository().deleteTeacher(id);
+    bool success = false; // Initialize success to false
+    for (int id in ids) {
+      success = await QuestionRepository().deleteMcq(id);
+      // Note: this will override success on each iteration
+    }
     isLoading(false);
+
+    if (success) {
+      // Check success after the loop
+      Get.rawSnackbar(
+          message: 'Deleted ${ids.length} question(s) successfully!',
+          backgroundColor: Colors.green);
+    } else {
+      Get.rawSnackbar(
+          message: 'No questions deleted', backgroundColor: Colors.red);
+    }
+    firstElements = [];
     fetchData();
   }
 
   void addMcq() async {
     isAdding(true);
+    List<String> options = [
+      option1Text.text,
+      option2Text.text,
+      option3Text.text,
+      option4Text.text,
+    ];
+    options = options.where((option) => option.isNotEmpty).toList();
     var map = {
-      'bid': selectedBoard.value?.id,
+      'board': selectedBoard.value?.id,
+      'subject': selectedSubject.value?.id,
       'std': selectedStandard.value,
       'question': quetionText.text,
-      'option1': option1Text.text,
-      'option2': option2Text.text,
-      'option3': option3Text.text,
-      'option4': option4Text.text,
+      'options': options,
       'answer': answerText.value,
-      'solution': solutionText.text
+      'solution': solutionText.text,
+      'chapter': selectedChapter.value
     };
     print(map);
     var result = await QuestionRepository().addMcq(map);
@@ -228,6 +283,8 @@ class McqController extends GetxController {
     solutionText.text = '';
     answerText.value = '';
     selectedStandard = '1'.obs;
+    selectedChapter = '1'.obs;
+    selectedSubject = Rx<Subjects?>(null);
     selectedBoard = Rx<Boards?>(null);
     file.value = '';
     isAdding(false);
@@ -237,15 +294,29 @@ class McqController extends GetxController {
 class McqDataSource extends DataGridSource {
   /// Creates the employee data source class with required details.
   McqDataSource({required List<Questions> mcqData}) {
-    _mcqData = mcqData
-        .map<DataGridRow>((e) => DataGridRow(cells: [
-              DataGridCell<int>(columnName: 'id', value: e.id),
-              DataGridCell<int>(columnName: 'Board', value: e.bid),
-              DataGridCell<String>(columnName: 'Question', value: e.question),
-              DataGridCell<int>(columnName: 'Standard', value: e.std),
-              // DataGridCell<String>(columnName: 'salary', value: e.subject),
-            ]))
-        .toList();
+    _mcqData = mcqData.map<DataGridRow>((e) {
+      List<String?> options = e.options ??
+          List.filled(4, ''); // Fill missing options with empty strings
+      return DataGridRow(cells: [
+        DataGridCell<int>(columnName: 'id', value: e.id),
+        DataGridCell<String>(columnName: 'Question', value: e.question),
+        DataGridCell<String>(
+            columnName: 'Option 1',
+            value: options.isNotEmpty ? options[0] ?? '' : ''),
+        DataGridCell<String>(
+            columnName: 'Option 2',
+            value: options.length > 1 ? options[1] ?? '' : ''),
+        DataGridCell<String>(
+            columnName: 'Option 3',
+            value: options.length > 2 ? options[2] ?? '' : ''),
+        DataGridCell<String>(
+            columnName: 'Option 4',
+            value: options.length > 3 ? options[3] ?? '' : ''),
+        DataGridCell<String>(columnName: 'Subject', value: e.subject),
+        DataGridCell<String>(columnName: 'Board', value: e.boardName),
+        DataGridCell<int>(columnName: 'Standard', value: e.std),
+      ]);
+    }).toList();
   }
 
   List<DataGridRow> _mcqData = [];

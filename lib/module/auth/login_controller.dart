@@ -6,7 +6,10 @@ class LoginController extends GetxController {
   var emailText = TextEditingController();
   var passwordText = TextEditingController();
   void login() async {
-    var map = {'email': 'test5@gmail.com', 'password': 'test'};
+    var map = {
+      'number': emailText.text.toString(),
+      'password': passwordText.text.toString()
+    };
     await AuthRepository().signIn(map);
   }
 }

@@ -1,8 +1,11 @@
-import 'package:fintech_dashboard_clone/models/question_analysis_model.dart';
-import 'package:fintech_dashboard_clone/models/student_analysis_model.dart';
-import 'package:fintech_dashboard_clone/models/teacher_analysis_model.dart';
-import 'package:fintech_dashboard_clone/repository/analysis_repository.dart';
 import 'package:get/get.dart';
+import 'package:lexus_admin/models/board_model.dart';
+import 'package:lexus_admin/models/question_analysis_model.dart';
+import 'package:lexus_admin/models/student_analysis_model.dart';
+import 'package:lexus_admin/models/subject_model.dart';
+import 'package:lexus_admin/models/teacher_analysis_model.dart';
+import 'package:lexus_admin/repository/analysis_repository.dart';
+import 'package:lexus_admin/repository/book_repository.dart';
 
 class AnalysisController extends GetxController {
   RxBool isLoading = false.obs;
@@ -10,7 +13,8 @@ class AnalysisController extends GetxController {
   TeacherAnalysisModel? teacherAnalysisModel;
   StudentAnalysisModel? studentAnalysisModel;
   QuestionAnalysisModel? questionAnalysisModel;
-
+  SubjectModel? subjectModel;
+  BoardModel? boardModel;
   @override
   void onInit() {
     fetchData();
@@ -22,6 +26,8 @@ class AnalysisController extends GetxController {
     teacherAnalysisModel = await AnalysisRepository().getTeacherAnalysis();
     studentAnalysisModel = await AnalysisRepository().getStudentAnalysis();
     questionAnalysisModel = await AnalysisRepository().getQuestionAnalysis();
+    boardModel = await BookRepository().getBoard();
+    subjectModel = await BookRepository().getSubject();
     isLoading(false);
   }
 }

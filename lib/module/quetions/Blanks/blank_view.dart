@@ -1,8 +1,13 @@
+import 'dart:io';
+
 import 'package:animated_shimmer/animated_shimmer.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lexus_admin/layout/app_layout.dart';
 import 'package:lexus_admin/models/board_model.dart';
+import 'package:lexus_admin/models/question_model.dart';
+import 'package:lexus_admin/models/subject_model.dart';
 import 'package:lexus_admin/module/quetions/Blanks/blanks_controller.dart';
 import 'package:lexus_admin/styles/styles.dart';
 import 'package:lottie/lottie.dart';
@@ -11,6 +16,83 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 class BlankView extends StatelessWidget {
   BlankView({Key? key}) : super(key: key);
   final formKey = GlobalKey<FormState>();
+
+  Future<void> _showExcelInputDialog(BuildContext context) async {
+    final excelKey = GlobalKey<FormState>();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Enter Excel Sheet '),
+          content: Obx(
+            () => Form(
+              key: excelKey,
+              child: TextFormField(
+                readOnly: true,
+                onTap: () async {
+                  try {
+                    FilePickerResult? result =
+                        await FilePicker.platform.pickFiles(
+                      type: FileType.custom,
+                      allowedExtensions: ['xlsx'],
+                    );
+
+                    if (result != null) {
+                      String? filePath = result.files.single.path;
+                      controller.file.value = filePath!;
+                      print("File path: ${controller.file.value}");
+                    } else {}
+                  } catch (e) {
+                    print("Error picking file: $e");
+                  }
+                },
+                validator: (value) {
+                  if (value == '' || value == 'No file selected') {
+                    return 'Please choose a excel';
+                  }
+                  return null;
+                },
+                decoration: const InputDecoration(
+                  suffixIcon: Icon(Icons.upload),
+                ),
+                controller: TextEditingController(
+                  text: controller.file.value != ''
+                      ? controller.file.value
+                      : 'No file selected',
+                ),
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            Obx(
+              () => !controller.isAdding.value
+                  ? TextButton(
+                      onPressed: () async {
+                        controller.isExcelValid.value = true;
+                        if (excelKey.currentState!.validate()) {
+                          controller.processExcelData(
+                              File(
+                                controller.file.value,
+                              ),
+                              context);
+                        }
+                      },
+                      child: const Text('Submit'),
+                    )
+                  : ElevatedButton(
+                      onPressed: () {},
+                      child: const SizedBox(
+                          height: 15,
+                          width: 15,
+                          child: CircularProgressIndicator()),
+                    ),
+            )
+          ],
+        );
+      },
+    );
+  }
+
   var controller = Get.isRegistered<BlankController>()
       ? Get.find<BlankController>()
       : Get.put(BlankController());
@@ -36,8 +118,8 @@ class BlankView extends StatelessWidget {
                 ElevatedButton.icon(
                     onPressed: () {
                       controller.clearForm();
-                      // _showExcelInputDialog(
-                      //     context); // Call the function to show input dialog
+                      _showExcelInputDialog(
+                          context); // Call the function to show input dialog
                     },
                     icon: const Icon(Icons.upload),
                     label: const Text('Upload Excel')),
@@ -60,10 +142,10 @@ class BlankView extends StatelessWidget {
                 ),
                 ElevatedButton.icon(
                     onPressed: () {
-                      // controller.downloadExcel(
-                      //     context,
-                      //     controller.blanksModel ?? UsersModel(),
-                      //     'active_teacherlist');
+                      controller.downloadExcel(
+                          context,
+                          controller.questionModel ?? QuestionModel(),
+                          'blanks');
                     },
                     icon: const Icon(Icons.download),
                     label: const Text('Download Data')),
@@ -76,6 +158,22 @@ class BlankView extends StatelessWidget {
                     },
                     icon: const Icon(Icons.refresh),
                     label: const Text('Refresh')),
+                SizedBox(
+                  width: Styles.defaultPadding,
+                ),
+                Obx(() => Visibility(
+                      visible: controller.isRowSelected.value,
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.delete),
+                        label: const Text('Delete'),
+                        onPressed: () {
+                          controller.MultideleteMcq(controller.firstElements);
+
+                          // Handle delete action here
+                          controller.clearSelectedRow();
+                        },
+                      ),
+                    )),
               ],
             ),
             SizedBox(height: Styles.defaultPadding * 2),
@@ -98,6 +196,45 @@ class BlankView extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(18),
                                         color: Colors.white),
                                     child: SfDataGrid(
+                                      controller: controller.dataGridController,
+                                      onSelectionChanged:
+                                          (addedRows, removedRows) {
+                                        List<List<dynamic>> selectedRowsData =
+                                            []; //SelectedRows
+                                        for (var selectedRowIndex in controller
+                                            .dataGridController.selectedRows) {
+                                          List<dynamic> rowData = [];
+                                          var selectedRowCells =
+                                              selectedRowIndex.getCells();
+                                          for (var cell in selectedRowCells) {
+                                            rowData.add(cell
+                                                .value); // Convert cell value to string
+                                          }
+                                          selectedRowsData.add(rowData);
+                                        }
+                                        controller.firstElements
+                                            .clear(); // Clear previous selected elements
+                                        for (var rowData in selectedRowsData) {
+                                          if (rowData.isNotEmpty) {
+                                            controller.firstElements
+                                                .add(rowData[0]);
+                                          }
+                                        }
+
+                                        if (controller
+                                            .firstElements.isNotEmpty) {
+                                          controller.setSelectedRow(
+                                              controller.firstElements.first);
+                                        } else {
+                                          controller.clearSelectedRow();
+                                        }
+                                        // Update visibility of delete button
+                                        controller.updateDeleteButtonVisibility(
+                                            controller
+                                                .firstElements.isNotEmpty);
+                                      },
+                                      showCheckboxColumn: true,
+                                      selectionMode: SelectionMode.multiple,
                                       rowsPerPage: 10,
                                       allowFiltering: true,
                                       allowSorting: true,
@@ -107,21 +244,16 @@ class BlankView extends StatelessWidget {
                                           (BuildContext context,
                                               DataGridRow row, int rowIndex) {
                                         return GestureDetector(
-                                            onTap: () async {
-                                              controller.makeDeactive(controller
-                                                      .questionModel
-                                                      ?.questions?[rowIndex]
-                                                      .id ??
-                                                  0);
-                                            },
-                                            child: Container(
-                                                color: Colors.red,
-                                                padding: const EdgeInsets.only(
-                                                    left: 30.0),
-                                                alignment: Alignment.centerLeft,
-                                                child: const Text('Deactivate',
-                                                    style: TextStyle(
-                                                        color: Colors.white))));
+                                            // onTap: () async {},
+                                            // child: Container(
+                                            //     color: Colors.red,
+                                            //     padding: const EdgeInsets.only(
+                                            //         left: 30.0),
+                                            //     alignment: Alignment.centerLeft,
+                                            //     child: const Text('Deactivate',
+                                            //         style: TextStyle(
+                                            //             color: Colors.white)))
+                                            );
                                       },
                                       onSwipeUpdate: (details) {
                                         return true;
@@ -132,13 +264,6 @@ class BlankView extends StatelessWidget {
                                               DataGridRow row, int rowIndex) {
                                         return GestureDetector(
                                             onTap: () async {
-                                              controller.deleteTeacher(
-                                                  controller
-                                                          .questionModel
-                                                          ?.questions?[rowIndex]
-                                                          .id ??
-                                                      0);
-
                                               controller.fetchData();
                                             },
                                             child: Container(
@@ -151,7 +276,8 @@ class BlankView extends StatelessWidget {
                                                         color: Colors.white))));
                                       },
                                       source: controller.blankDataSource,
-                                      columnWidthMode: ColumnWidthMode.fill,
+                                      columnWidthMode:
+                                          ColumnWidthMode.lastColumnFill,
                                       columns: <GridColumn>[
                                         GridColumn(
                                             columnWidthMode:
@@ -284,6 +410,37 @@ class addBlanks extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(height: Styles.defaultPadding),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Obx(() => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: DropdownButtonFormField<Subjects>(
+                            hint: const Text('Select a Subject'),
+                            validator: (value) {
+                              if (value == null) {
+                                return 'Please select a subject';
+                              }
+                              return null;
+                            },
+                            value: controller.selectedSubject.value,
+                            onChanged: (Subjects? newValue) {
+                              controller.selectedSubject.value = newValue;
+                            },
+                            items:
+                                controller.subjectModel?.subjects?.map((board) {
+                                      return DropdownMenuItem<Subjects>(
+                                        value: board,
+                                        child: Text(board.name ?? ''),
+                                      );
+                                    }).toList() ??
+                                    [],
+                          ),
+                        )),
+                  ),
+                  SizedBox(height: Styles.defaultPadding),
                   TextFormField(
                     maxLines: 5,
                     controller: controller.quetionText,
@@ -303,12 +460,12 @@ class addBlanks extends StatelessWidget {
                     decoration: const InputDecoration(
                       labelText: 'Answer',
                     ),
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Please enter your answer';
-                      }
-                      return null;
-                    },
+                    // validator: (value) {
+                    //   if (value!.isEmpty) {
+                    //     return 'Please enter your answer';
+                    //   }
+                    //   return null;
+                    // },
                   ),
                   SizedBox(height: Styles.defaultPadding),
                   TextFormField(
@@ -317,12 +474,12 @@ class addBlanks extends StatelessWidget {
                     decoration: const InputDecoration(
                       labelText: 'Solution',
                     ),
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Please enter your solution';
-                      }
-                      return null;
-                    },
+                    // validator: (value) {
+                    //   if (value!.isEmpty) {
+                    //     return 'Please enter your solution';
+                    //   }
+                    //   return null;
+                    // },
                   ),
                   SizedBox(height: Styles.defaultPadding),
                   const Text(

@@ -1,9 +1,9 @@
-class QuestionModel {
+class McqModel {
   List<Questions>? questions;
 
-  QuestionModel({this.questions});
+  McqModel({this.questions});
 
-  QuestionModel.fromJson(Map<String, dynamic> json) {
+  McqModel.fromJson(Map<String, dynamic> json) {
     if (json['questions'] != null) {
       questions = <Questions>[];
       json['questions'].forEach((v) {
@@ -24,7 +24,7 @@ class QuestionModel {
 class Questions {
   int? id;
   String? board;
-  int? subject;
+  String? subject;
   int? std;
   int? chapter;
   String? question;
@@ -34,7 +34,7 @@ class Questions {
   String? updatedAt;
   void deletedAt;
   String? type;
-  void options;
+  List<String>? options;
   String? boardName;
 
   Questions(
@@ -66,7 +66,7 @@ class Questions {
     updatedAt = json['updated_at'];
 
     type = json['type'];
-
+    options = json['options'].cast<String>();
     boardName = json['board_name'];
   }
 
@@ -84,7 +84,7 @@ class Questions {
     data['updated_at'] = updatedAt;
 
     data['type'] = type;
-
+    data['options'] = options;
     data['board_name'] = boardName;
     return data;
   }

@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:fintech_dashboard_clone/models/question_analysis_model.dart';
-import 'package:fintech_dashboard_clone/models/student_analysis_model.dart';
-import 'package:fintech_dashboard_clone/models/teacher_analysis_model.dart';
-import 'package:fintech_dashboard_clone/module/auth/auth_service.dart';
-import 'package:fintech_dashboard_clone/repository/base.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:lexus_admin/models/question_analysis_model.dart';
+import 'package:lexus_admin/models/student_analysis_model.dart';
+import 'package:lexus_admin/models/teacher_analysis_model.dart';
+import 'package:lexus_admin/module/auth/auth_service.dart';
+import 'package:lexus_admin/repository/base.dart';
 
 class AnalysisRepository {
   Future<TeacherAnalysisModel?> getTeacherAnalysis() async {

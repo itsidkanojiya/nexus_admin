@@ -1,3 +1,3 @@
 class Base {
-  static String api = 'http://127.0.0.1:8000/api';
+  static String api = 'https://backend.nexuspublication.com/api';
 }

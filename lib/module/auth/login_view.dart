@@ -17,6 +17,7 @@ class LoginView extends StatelessWidget {
             child: Column(
               children: [
                 TextFormField(
+                  controller: controller.emailText,
                   decoration: const InputDecoration(
                     labelText: 'Email',
                     border: OutlineInputBorder(),
@@ -25,6 +26,7 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 TextFormField(
+                  controller: controller.passwordText,
                   decoration: const InputDecoration(
                     labelText: 'Password',
                     border: OutlineInputBorder(),

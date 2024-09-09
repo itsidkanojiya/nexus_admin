@@ -114,8 +114,10 @@ class TeacherController extends GetxController {
         const TextCellValue('ID'),
         const TextCellValue('Name'),
         const TextCellValue('Number'),
-        const TextCellValue('Standard'),
-        const TextCellValue('School')
+        const TextCellValue('Subject'),
+        const TextCellValue('School'),
+        const TextCellValue('Email'),
+        const TextCellValue('Verified')
       ]
     ];
 
@@ -124,8 +126,11 @@ class TeacherController extends GetxController {
         TextCellValue(user.id.toString()),
         TextCellValue(user.name.toString()),
         TextCellValue(user.number.toString()),
-        TextCellValue(user.std.toString()),
+        TextCellValue(user.subject.toString()),
         TextCellValue(user.school.toString()),
+        TextCellValue(user.email.toString()),
+        TextCellValue(
+            user.verified.toString() == 1 ? 'Verified' : 'Unverified'),
       ]);
     }
 
@@ -224,6 +229,9 @@ class PendingDataSource extends DataGridSource {
               DataGridCell<String>(columnName: 'number', value: e.number),
               DataGridCell<String>(columnName: 'school', value: e.school),
               DataGridCell<String>(columnName: 'subject', value: e.subject),
+              DataGridCell<String>(columnName: 'email', value: e.email),
+              DataGridCell<String>(
+                  columnName: 'verified', value: e.verified.toString()),
               // DataGridCell<String>(columnName: 'salary', value: e.subject),
             ]))
         .toList();
@@ -240,8 +248,20 @@ class PendingDataSource extends DataGridSource {
         cells: row.getCells().map<Widget>((e) {
       return Container(
         alignment: Alignment.center,
-        padding: const EdgeInsets.all(8.0),
-        child: Text(e.value.toString()),
+        padding:
+            (e.columnName == 'verified') ? null : const EdgeInsets.all(8.0),
+        child: (e.columnName == 'verified')
+            ? Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: e.value == "1" ? Colors.green : Colors.red,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Text(e.value == "1" ? 'Verified' : "Unverified"),
+                ),
+              )
+            : Text(e.value.toString()),
       );
     }).toList());
   }

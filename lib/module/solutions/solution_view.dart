@@ -1,12 +1,12 @@
 import 'package:animated_shimmer/animated_shimmer.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:fintech_dashboard_clone/layout/app_layout.dart';
-import 'package:fintech_dashboard_clone/models/board_model.dart';
-import 'package:fintech_dashboard_clone/models/subject_model.dart';
-import 'package:fintech_dashboard_clone/module/solutions/solution_controller.dart';
-import 'package:fintech_dashboard_clone/styles/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:lexus_admin/layout/app_layout.dart';
+import 'package:lexus_admin/models/board_model.dart';
+import 'package:lexus_admin/models/subject_model.dart';
+import 'package:lexus_admin/module/solutions/solution_controller.dart';
+import 'package:lexus_admin/styles/styles.dart';
 
 class SolutionView extends StatelessWidget {
   SolutionView({Key? key}) : super(key: key);

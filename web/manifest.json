@@ -1,6 +1,6 @@
 {
-    "name": "fintech_dashboard_clone",
-    "short_name": "fintech_dashboard_clone",
+    "name": "nexus_admin",
+    "short_name": "nexus_admin",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

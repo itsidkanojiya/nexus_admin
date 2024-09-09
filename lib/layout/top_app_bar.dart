@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:lexus_admin/module/auth/login_view.dart';
 import 'package:lexus_admin/responsive.dart';
 
 class TopAppBar extends StatelessWidget {
@@ -30,10 +32,38 @@ class TopAppBar extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: _nameAndProfilePicture(
-              context,
-              "Emily Smith",
-              "https://image.freepik.com/free-photo/dreamy-girl-biting-sunglasses-looking-away-with-dreamy-face-purple-background_197531-7085.jpg",
+            child: GestureDetector(
+              onTap: () {
+                Get.dialog(AlertDialog(
+                  title: const Text("Logout"),
+                  content: const Text("Are you sure?"),
+                  actions: <Widget>[
+                    TextButton(
+                      onPressed: () {
+                        Get.to(LoginView());
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(14),
+                        child: const Text("Yes"),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(14),
+                        child: const Text("No"),
+                      ),
+                    ),
+                  ],
+                ));
+              },
+              child: _nameAndProfilePicture(
+                context,
+                "Krunal Patel",
+                "assets/admin_pic.png",
+              ),
             ),
           ),
         ],
@@ -65,7 +95,7 @@ class TopAppBar extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(left: 8.0),
             child: CircleAvatar(
-              backgroundImage: NetworkImage(imageUrl),
+              backgroundImage: AssetImage(imageUrl),
             ),
           ),
         ),

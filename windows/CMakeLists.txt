@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
-project(fintech_dashboard_clone LANGUAGES CXX)
+project(nexus_admin LANGUAGES CXX)
 
-set(BINARY_NAME "fintech_dashboard_clone")
+set(BINARY_NAME "nexus_admin")
 
 cmake_policy(SET CMP0063 NEW)
 

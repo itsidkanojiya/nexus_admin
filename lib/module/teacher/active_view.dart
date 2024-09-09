@@ -137,13 +137,6 @@ class ActiveTeacherView extends StatelessWidget {
                                               DataGridRow row, int rowIndex) {
                                         return GestureDetector(
                                             onTap: () async {
-                                              controller.deleteTeacher(
-                                                  controller
-                                                          .activeTeacher
-                                                          ?.users?[rowIndex]
-                                                          .id ??
-                                                      0);
-
                                               controller.fetchData();
                                             },
                                             child: Container(
@@ -156,9 +149,12 @@ class ActiveTeacherView extends StatelessWidget {
                                                         color: Colors.white))));
                                       },
                                       source: controller.activeDataSource,
-                                      columnWidthMode: ColumnWidthMode.fill,
+                                      columnWidthMode:
+                                          ColumnWidthMode.lastColumnFill,
                                       columns: <GridColumn>[
                                         GridColumn(
+                                            columnWidthMode:
+                                                ColumnWidthMode.auto,
                                             columnName: 'name',
                                             label: Container(
                                                 padding:
@@ -192,6 +188,20 @@ class ActiveTeacherView extends StatelessWidget {
                                                     const EdgeInsets.all(8.0),
                                                 alignment: Alignment.center,
                                                 child: const Text('Subject'))),
+                                        GridColumn(
+                                            columnName: 'email',
+                                            label: Container(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                alignment: Alignment.center,
+                                                child: const Text('Email'))),
+                                        GridColumn(
+                                            columnName: 'verified',
+                                            label: Container(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                alignment: Alignment.center,
+                                                child: const Text('Verified'))),
                                       ],
                                     ),
                                   ),

@@ -5,6 +5,7 @@ enum NavigationItems {
   teachers,
   srudents,
   books,
+  solution,
   quetions,
 }
 
@@ -19,6 +20,8 @@ extension NavigationItemsExtensions on NavigationItems {
         return Icons.man;
       case NavigationItems.books:
         return Icons.menu_book_sharp;
+      case NavigationItems.solution:
+        return Icons.book;
       case NavigationItems.quetions:
         return Icons.question_mark_outlined;
       default:

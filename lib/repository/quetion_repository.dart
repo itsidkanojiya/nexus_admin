@@ -1,13 +1,16 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:lexus_admin/models/mcq_modal.dart';
 import 'package:lexus_admin/models/question_model.dart';
+import 'package:lexus_admin/module/auth/auth_service.dart';
 import 'package:lexus_admin/repository/base.dart';
 
 class QuestionRepository {
-  Future<QuestionModel?> getMcq() async {
+  Future<McqModel?> getMcq() async {
     try {
       final response = await http
           .get(Uri.parse('${Base.api}/mcq'), headers: <String, String>{
@@ -17,7 +20,7 @@ class QuestionRepository {
       final body = jsonDecode(response.body);
       debugPrint('getMcq body: $body');
       if (response.statusCode == 200) {
-        return QuestionModel.fromJson(body);
+        return McqModel.fromJson(body);
       }
     } catch (e) {
       debugPrint('Error While getMcq() ${e.toString()}');
@@ -127,6 +130,7 @@ class QuestionRepository {
         Uri.parse('${Base.api}/add-mcq'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
         },
         body: jsonEncode(map),
       );
@@ -151,6 +155,7 @@ class QuestionRepository {
         Uri.parse('${Base.api}/edit-mcq'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
         },
         body: jsonEncode(map),
       );
@@ -174,6 +179,7 @@ class QuestionRepository {
       final response = await http.post(
         Uri.parse('${Base.api}/add-truefalse'),
         headers: <String, String>{
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}",
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(map),
@@ -199,6 +205,7 @@ class QuestionRepository {
         Uri.parse('${Base.api}/edit-truefalse'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
         },
         body: jsonEncode(map),
       );
@@ -223,6 +230,7 @@ class QuestionRepository {
         Uri.parse('${Base.api}/add-blank'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
         },
         body: jsonEncode(map),
       );
@@ -247,6 +255,7 @@ class QuestionRepository {
         Uri.parse('${Base.api}/edit-blank'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
         },
         body: jsonEncode(map),
       );
@@ -271,6 +280,7 @@ class QuestionRepository {
         Uri.parse('${Base.api}/add-short'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
         },
         body: jsonEncode(map),
       );
@@ -295,6 +305,7 @@ class QuestionRepository {
         Uri.parse('${Base.api}/edit-short'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
         },
         body: jsonEncode(map),
       );
@@ -319,6 +330,7 @@ class QuestionRepository {
         Uri.parse('${Base.api}/add-long'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
         },
         body: jsonEncode(map),
       );
@@ -343,6 +355,7 @@ class QuestionRepository {
         Uri.parse('${Base.api}/edit-long'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
         },
         body: jsonEncode(map),
       );
@@ -367,6 +380,7 @@ class QuestionRepository {
         Uri.parse('${Base.api}/add-onetwo'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
         },
         body: jsonEncode(map),
       );
@@ -391,6 +405,7 @@ class QuestionRepository {
         Uri.parse('${Base.api}/edit-onetwo'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
         },
         body: jsonEncode(map),
       );
@@ -406,6 +421,150 @@ class QuestionRepository {
     }
     Get.rawSnackbar(
         message: 'Question edited failed!', backgroundColor: Colors.redAccent);
+    return false;
+  }
+
+  Future<bool> deleteMcq(int id) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('${Base.api}/delete-mcq?id=$id'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
+        },
+      );
+
+      final body = jsonDecode(response.body);
+      debugPrint('deleteQuestion body: $body');
+      if (response.statusCode == 200) {
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Error While deleteQuestion() ${e.toString()}');
+      return Future.error(e);
+    }
+    Get.rawSnackbar(
+        message: 'Something went wrong!', backgroundColor: Colors.redAccent);
+    return false;
+  }
+
+  Future<bool> deleteTrueFalse(int id) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('${Base.api}/delete-truefalse?id=$id'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
+        },
+      );
+
+      final body = jsonDecode(response.body);
+      debugPrint('deleteQuestion body: $body');
+      if (response.statusCode == 201) {
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Error While deleteQuestion() ${e.toString()}');
+      return Future.error(e);
+    }
+    Get.rawSnackbar(
+        message: 'Something went wrong!', backgroundColor: Colors.redAccent);
+    return false;
+  }
+
+  Future<bool> deleteBlank(int id) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('${Base.api}/delete-blank?id=$id'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
+        },
+      );
+
+      final body = jsonDecode(response.body);
+      debugPrint('deleteQuestion body: $body');
+      if (response.statusCode == 200) {
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Error While deleteQuestion() ${e.toString()}');
+      return Future.error(e);
+    }
+    Get.rawSnackbar(
+        message: 'Something went wrong!', backgroundColor: Colors.redAccent);
+    return false;
+  }
+
+  Future<bool> deleteShort(int id) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('${Base.api}/delete-short?id=$id'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
+        },
+      );
+
+      final body = jsonDecode(response.body);
+      debugPrint('deleteQuestion body: $body');
+      if (response.statusCode == 200) {
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Error While deleteQuestion() ${e.toString()}');
+      return Future.error(e);
+    }
+    Get.rawSnackbar(
+        message: 'Something went wrong!', backgroundColor: Colors.redAccent);
+    return false;
+  }
+
+  Future<bool> deleteLong(int id) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('${Base.api}/delete-long?id=$id'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
+        },
+      );
+
+      final body = jsonDecode(response.body);
+      debugPrint('deleteQuestion body: $body');
+      if (response.statusCode == 200) {
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Error While deleteQuestion() ${e.toString()}');
+      return Future.error(e);
+    }
+    Get.rawSnackbar(
+        message: 'Something went wrong!', backgroundColor: Colors.redAccent);
+    return false;
+  }
+
+  Future<bool> deleteOneTwo(int id) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('${Base.api}/delete-onetwo?id=$id'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          HttpHeaders.authorizationHeader: "Bearer ${AuthService.token}"
+        },
+      );
+
+      final body = jsonDecode(response.body);
+      debugPrint('deleteQuestion body: $body');
+      if (response.statusCode == 200) {
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Error While deleteQuestion() ${e.toString()}');
+      return Future.error(e);
+    }
+    Get.rawSnackbar(
+        message: 'Something went wrong!', backgroundColor: Colors.redAccent);
     return false;
   }
 }

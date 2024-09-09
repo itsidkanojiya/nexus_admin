@@ -1,151 +1,79 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'dart:convert';
+class BookModel {
+  List<Books>? books;
 
-import 'package:flutter/foundation.dart';
+  BookModel({this.books});
 
-class Book {
-  final int id;
-  final String name;
-  final int std;
-  final int bid;
-  final String pdf_link;
-  final String cover_link;
-
-  Book({
-    required this.id,
-    required this.name,
-    required this.std,
-    required this.bid,
-    required this.pdf_link,
-    required this.cover_link,
-  });
-
-  factory Book.fromMap(Map<String, dynamic> map) {
-    return Book(
-      id: map['id'] as int,
-      name: map['name'] as String,
-      std: map['std'] as int,
-      bid: map['bid'] as int,
-      pdf_link: map['pdf_link'] as String,
-      cover_link: map['cover_link'] as String,
-    );
+  BookModel.fromJson(Map<String, dynamic> json) {
+    if (json['books'] != null) {
+      books = <Books>[];
+      json['books'].forEach((v) {
+        books!.add(Books.fromJson(v));
+      });
+    }
   }
 
-  factory Book.fromJson(String source) =>
-      Book.fromMap(json.decode(source) as Map<String, dynamic>);
-
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'id': id,
-      'name': name,
-      'std': std,
-      'bid': bid,
-      'pdf_link': pdf_link,
-      'cover_link': cover_link,
-    };
-  }
-
-  String toJson() => json.encode(toMap());
-
-  @override
-  String toString() {
-    return 'Book(id: $id, name: $name, std: $std, bid: $bid, pdf_link: $pdf_link, cover_link: $cover_link)';
-  }
-
-  @override
-  bool operator ==(covariant Book other) {
-    if (identical(this, other)) return true;
-
-    return other.id == id &&
-        other.name == name &&
-        other.std == std &&
-        other.bid == bid &&
-        other.pdf_link == pdf_link &&
-        other.cover_link == cover_link;
-  }
-
-  @override
-  int get hashCode {
-    return id.hashCode ^
-        name.hashCode ^
-        std.hashCode ^
-        bid.hashCode ^
-        pdf_link.hashCode ^
-        cover_link.hashCode;
-  }
-
-  Book copyWith({
-    int? id,
-    String? name,
-    int? std,
-    int? bid,
-    String? pdf_link,
-    String? cover_link,
-  }) {
-    return Book(
-      id: id ?? this.id,
-      name: name ?? this.name,
-      std: std ?? this.std,
-      bid: bid ?? this.bid,
-      pdf_link: pdf_link ?? this.pdf_link,
-      cover_link: cover_link ?? this.cover_link,
-    );
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    if (books != null) {
+      data['books'] = books!.map((v) => v.toJson()).toList();
+    }
+    return data;
   }
 }
 
-class BookModel {
-  final List<Book> books;
+class Books {
+  int? id;
+  String? name;
+  int? std;
+  String? board;
+  int? chapterNo;
+  String? chapterName;
+  String? pdfLink;
+  String? coverLink;
+  String? createdAt;
+  String? updatedAt;
+  void deletedAt;
 
-  BookModel({
-    required this.books,
-  });
+  Books(
+      {this.id,
+      this.name,
+      this.std,
+      this.board,
+      this.chapterNo,
+      this.chapterName,
+      this.pdfLink,
+      this.coverLink,
+      this.createdAt,
+      this.updatedAt,
+      this.deletedAt});
 
-  factory BookModel.fromJson(Map<String, dynamic> map) {
-    return BookModel(
-      books: List<Book>.from(
-        map['books'].map<Book>(
-          (x) => Book.fromMap(x),
-        ),
-      ),
-    );
+  Books.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+    std = json['std'];
+    board = json['board'];
+    chapterNo = json['chapter_no'];
+    chapterName = json['chapter_name'];
+    pdfLink = json['pdf_link'];
+    coverLink = json['cover_link'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+    deletedAt = json['deleted_at'];
   }
 
-  BookModel copyWith({
-    List<Book>? books,
-  }) {
-    return BookModel(
-      books: books ?? this.books,
-    );
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['name'] = name;
+    data['std'] = std;
+    data['board'] = board;
+    data['chapter_no'] = chapterNo;
+    data['chapter_name'] = chapterName;
+    data['pdf_link'] = pdfLink;
+    data['cover_link'] = coverLink;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+
+    return data;
   }
-
-  Map<String, dynamic> toMap() {
-    return <String, dynamic>{
-      'books': books.map((x) => x.toMap()).toList(),
-    };
-  }
-
-  factory BookModel.fromMap(Map<String, dynamic> map) {
-    return BookModel(
-      books: List<Book>.from(
-        (map['books'] as List<int>).map<Book>(
-          (x) => Book.fromMap(x as Map<String, dynamic>),
-        ),
-      ),
-    );
-  }
-
-  String toJson() => json.encode(toMap());
-
-  @override
-  String toString() => 'BookModel(books: $books)';
-
-  @override
-  bool operator ==(covariant BookModel other) {
-    if (identical(this, other)) return true;
-
-    return listEquals(other.books, books);
-  }
-
-  @override
-  int get hashCode => books.hashCode;
 }

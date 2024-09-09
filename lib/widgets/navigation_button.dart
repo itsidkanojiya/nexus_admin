@@ -13,10 +13,11 @@ class NavigationButton extends StatelessWidget {
   final int index;
   Widget? widget;
   List<String> menuName = [
-    'Dashboard',
+    'Analysis',
     'Teachers',
     'Students',
     'Books',
+    'Solution',
     'Quetions'
   ];
   @override

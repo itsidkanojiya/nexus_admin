@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:lexus_admin/layout/app_layout.dart';
+import 'package:lexus_admin/models/user_model.dart';
 import 'package:lexus_admin/module/student/student_controller.dart';
 import 'package:lexus_admin/styles/styles.dart';
 import 'package:lottie/lottie.dart';
@@ -62,7 +63,13 @@ class StudentView extends StatelessWidget {
                   width: Styles.defaultPadding,
                 ),
                 ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      controller.downloadExcel(
+                        context,
+                        controller.studentModel ?? UsersModel(),
+                        'studentlist',
+                      );
+                    },
                     icon: const Icon(Icons.download),
                     label: const Text('Download Data')),
                 SizedBox(
@@ -184,6 +191,20 @@ class StudentView extends StatelessWidget {
                                                     const EdgeInsets.all(8.0),
                                                 alignment: Alignment.center,
                                                 child: const Text('Standard'))),
+                                        GridColumn(
+                                            columnName: 'email',
+                                            label: Container(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                alignment: Alignment.center,
+                                                child: const Text('Email'))),
+                                        GridColumn(
+                                            columnName: 'verified',
+                                            label: Container(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                alignment: Alignment.center,
+                                                child: const Text('Verified'))),
                                       ],
                                     ),
                                   ),

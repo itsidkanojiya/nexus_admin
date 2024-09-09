@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:fintech_dashboard_clone/models/solution_model.dart';
-import 'package:fintech_dashboard_clone/module/auth/auth_service.dart';
-import 'package:fintech_dashboard_clone/repository/base.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:lexus_admin/models/solution_model.dart';
+import 'package:lexus_admin/module/auth/auth_service.dart';
+import 'package:lexus_admin/repository/base.dart';
 
 class SolutionRepository {
   Future<SolutionModel?> getSolutions() async {

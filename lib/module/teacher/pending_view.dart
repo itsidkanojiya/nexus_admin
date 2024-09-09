@@ -81,6 +81,12 @@ class PendingTeacherView extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(18),
                                         color: Colors.white),
                                     child: SfDataGrid(
+                                      onCellTap: ((details) {
+                                        print(details);
+                                        Get.dialog(const AlertDialog(
+                                          content: Text('kd'),
+                                        ));
+                                      }),
                                       rowsPerPage: 10,
                                       allowFiltering: true,
                                       allowSorting: true,
@@ -134,7 +140,8 @@ class PendingTeacherView extends StatelessWidget {
                                                         color: Colors.white))));
                                       },
                                       source: controller.pendingDataSource,
-                                      columnWidthMode: ColumnWidthMode.fill,
+                                      columnWidthMode:
+                                          ColumnWidthMode.lastColumnFill,
                                       columns: <GridColumn>[
                                         GridColumn(
                                             columnName: 'name',
@@ -170,6 +177,20 @@ class PendingTeacherView extends StatelessWidget {
                                                     const EdgeInsets.all(8.0),
                                                 alignment: Alignment.center,
                                                 child: const Text('Subject'))),
+                                        GridColumn(
+                                            columnName: 'email',
+                                            label: Container(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                alignment: Alignment.center,
+                                                child: const Text('Email'))),
+                                        GridColumn(
+                                            columnName: 'verified',
+                                            label: Container(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                alignment: Alignment.center,
+                                                child: const Text('Verified'))),
                                       ],
                                     ),
                                   ),

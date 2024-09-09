@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.fintech_dashboard_clone">
+    package="com.example.nexus_admin">
    <application
-        android:label="fintech_dashboard_clone"
+        android:label="nexus_admin"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
