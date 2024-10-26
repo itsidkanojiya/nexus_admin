@@ -211,7 +211,7 @@ class HelpView extends StatelessWidget {
                   DataColumn(label: Text('Subject ID')),
                   DataColumn(label: Text('Subject Name')),
                 ],
-                rows: controller.boardModel!.boards!
+                rows: controller.subjectModel!.subjects!
                     .map(
                       (subject) => DataRow(
                         cells: [
@@ -240,7 +240,7 @@ class HelpView extends StatelessWidget {
                   DataColumn(label: Text('Board ID')),
                   DataColumn(label: Text('Board Name')),
                 ],
-                rows: controller.subjectModel!.subjects!
+                rows: controller.boardModel!.boards!
                     .map(
                       (board) => DataRow(
                         cells: [

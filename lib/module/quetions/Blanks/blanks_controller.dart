@@ -86,8 +86,8 @@ class BlankController extends GetxController {
       var question = row[2]; // Assuming subject is in the third column
       var answer = row[3]; // Assuming std is in the fourth column
       var solution = row[4]; // Assuming school is in the fifth column
-      var subject = row[4]; // Assuming school is in the fifth column
-      var chapter = row[4]; // Assuming school is in the fifth column
+      var subject = row[5]; // Assuming school is in the fifth column
+      var chapter = row[6]; // Assuming school is in the fifth column
 
       var map = {
         'board': board != null ? int.tryParse(board.value.toString()) ?? 0 : 0,
@@ -95,7 +95,8 @@ class BlankController extends GetxController {
         'question': question?.value.toString(),
         'solution': solution?.value.toString(),
         'answer': answer?.value.toString(),
-        'chapter': chapter?.value.toString(),
+        'chapter':
+            chapter != null ? int.tryParse(chapter.value.toString()) ?? 0 : 0,
         'subject':
             subject != null ? int.tryParse(subject.value.toString()) ?? 0 : 0,
       };
@@ -188,7 +189,7 @@ class BlankController extends GetxController {
     isLoading(false);
 
     if (success) {
-      // Check success after the loop
+      // Check success after the lxxoop
       Get.rawSnackbar(
           message: 'Deleted ${ids.length} question(s) successfully!',
           backgroundColor: Colors.green);

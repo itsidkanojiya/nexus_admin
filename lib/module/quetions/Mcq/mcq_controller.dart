@@ -108,19 +108,21 @@ class McqController extends GetxController {
       var answer = row[7]; // Assuming std is in the fourth column
       var solution = row[8]; // Assuming school is in the fifth column
       var subject = row[9]; // Assuming school is in the fifth column
-      var chapter = row[9]; // Assuming school is in the fifth column
-
+      var chapter = row[10]; // Assuming school is in the fifth column
       var map = {
         'board': board != null ? int.tryParse(board.value.toString()) ?? 0 : 0,
         'std': std != null ? int.tryParse(std.value.toString()) ?? 0 : 0,
         'question': question?.value.toString(),
-        'option1': option1?.value.toString() ?? '',
-        'option2': option2?.value.toString() ?? '',
-        'option3': option3?.value.toString() ?? '',
-        'option4': option4?.value.toString() ?? '',
+        'options': [
+          option1?.value.toString() ?? '',
+          option2?.value.toString() ?? '',
+          option3?.value.toString() ?? '',
+          option4?.value.toString() ?? '',
+        ],
         'solution': solution?.value.toString(),
         'answer': answer?.value.toString(),
-        'chapter': chapter?.value.toString(),
+        'chapter':
+            chapter != null ? int.tryParse(chapter.value.toString()) ?? 0 : 0,
         'subject':
             subject != null ? int.tryParse(subject.value.toString()) ?? 0 : 0,
       };

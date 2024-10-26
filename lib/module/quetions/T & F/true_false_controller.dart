@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:lexus_admin/models/board_model.dart';
 import 'package:lexus_admin/models/question_model.dart';
 import 'package:lexus_admin/models/subject_model.dart';
+import 'package:lexus_admin/module/quetions/Blanks/blanks_controller.dart';
 import 'package:lexus_admin/repository/book_repository.dart';
 import 'package:lexus_admin/repository/quetion_repository.dart';
 import 'package:path_provider/path_provider.dart';
@@ -117,8 +118,8 @@ class TrueFalseController extends GetxController {
       var question = row[2]; // Assuming subject is in the third column
       var answer = row[3]; // Assuming std is in the fourth column
       var solution = row[4]; // Assuming school is in the fifth column
-      var subject = row[4]; // Assuming school is in the fifth column
-      var chapter = row[4]; // Assuming school is in the fifth column
+      var subject = row[5]; // Assuming school is in the fifth column
+      var chapter = row[6]; // Assuming school is in the fifth column
 
       var map = {
         'board': board != null ? int.tryParse(board.value.toString()) ?? 0 : 0,
@@ -131,7 +132,7 @@ class TrueFalseController extends GetxController {
             subject != null ? int.tryParse(subject.value.toString()) ?? 0 : 0,
       };
       print(map);
-      var result = await QuestionRepository().addShort(map);
+      var result = await QuestionRepository().addTrueFalse(map);
       if (result == false) {
         Get.rawSnackbar(
             message: 'error in excel row ${row[0]!.rowIndex}',
@@ -245,38 +246,6 @@ class TrueFalseController extends GetxController {
     selectedBoard = Rx<Boards?>(null);
     file.value = '';
     isAdding(false);
-  }
-}
-
-class BlankDataSource extends DataGridSource {
-  /// Creates the employee data source class with required details.
-  BlankDataSource({required List<Questions> blankData}) {
-    _mcqData = blankData
-        .map<DataGridRow>((e) => DataGridRow(cells: [
-              DataGridCell<int>(columnName: 'id', value: e.id),
-              DataGridCell<String>(columnName: 'Board', value: e.boardName),
-              DataGridCell<String>(columnName: 'Question', value: e.question),
-              DataGridCell<int>(columnName: 'Standard', value: e.std),
-              // DataGridCell<String>(columnName: 'salary', value: e.subject),
-            ]))
-        .toList();
-  }
-
-  List<DataGridRow> _mcqData = [];
-
-  @override
-  List<DataGridRow> get rows => _mcqData;
-
-  @override
-  DataGridRowAdapter buildRow(DataGridRow row) {
-    return DataGridRowAdapter(
-        cells: row.getCells().map<Widget>((e) {
-      return Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(8.0),
-        child: Text(e.value.toString()),
-      );
-    }).toList());
   }
 }
 

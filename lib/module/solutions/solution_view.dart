@@ -7,6 +7,8 @@ import 'package:lexus_admin/models/board_model.dart';
 import 'package:lexus_admin/models/subject_model.dart';
 import 'package:lexus_admin/module/solutions/solution_controller.dart';
 import 'package:lexus_admin/styles/styles.dart';
+import 'package:lottie/lottie.dart';
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class SolutionView extends StatelessWidget {
   SolutionView({Key? key}) : super(key: key);
@@ -14,78 +16,291 @@ class SolutionView extends StatelessWidget {
   var controller = Get.isRegistered<SolutionController>()
       ? Get.find<SolutionController>()
       : Get.put(SolutionController());
+
   @override
   Widget build(BuildContext context) {
     return AppLayout(
-        content: SingleChildScrollView(
-      child: Column(children: [
-        Row(
+      content: SingleChildScrollView(
+        child: Column(
           children: [
-            const Expanded(child: SizedBox()),
-            ElevatedButton.icon(
-                onPressed: () {
-                  controller.clearForm();
-                  Get.dialog(addSolution(
-                    controller: controller,
-                    id: 0,
-                    formKey: formKey,
-                  ));
-                },
-                icon: const Icon(Icons.add),
-                label: const Text('Add Solutions')),
-            const SizedBox(
-              width: 5,
+            Row(
+              children: [
+                SizedBox(
+                  width: Styles.defaultPadding,
+                ),
+                // const Text(
+                //   'Active True or False',
+                //   style: TextStyle(
+                //       fontSize: 20,
+                //       color: Colors.green,
+                //       fontWeight: FontWeight.w700),
+                // ),
+                const Expanded(child: SizedBox()),
+
+                SizedBox(
+                  width: Styles.defaultPadding,
+                ),
+                ElevatedButton.icon(
+                    onPressed: () {
+                      controller.clearForm();
+                      Get.dialog(addSolution(
+                        controller: controller,
+                        id: 0,
+                        formKey: formKey,
+                      ));
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Solution')),
+
+                SizedBox(
+                  width: Styles.defaultPadding,
+                ),
+                ElevatedButton.icon(
+                    onPressed: () {
+                      controller.fetchData();
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Refresh')),
+                SizedBox(
+                  width: Styles.defaultPadding,
+                ),
+                Obx(() => Visibility(
+                      visible: controller.isRowSelected.value,
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.delete),
+                        label: const Text('Delete'),
+                        onPressed: () {
+                          controller.MultideleteMcq(controller.firstElements);
+                          // Handle delete action here
+                          controller.clearSelectedRow();
+                        },
+                      ),
+                    )),
+              ],
             ),
-            ElevatedButton.icon(
-                onPressed: () {
-                  controller.fetchData();
-                },
-                icon: const Icon(Icons.refresh),
-                label: const Text('Refresh')),
+            SizedBox(height: Styles.defaultPadding * 2),
+            Obx(
+              () => !controller.isLoading.value
+                  ? controller.solutionModel!.solutions!.isNotEmpty
+                      ? LayoutBuilder(builder: (context, constraints) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Container(
+                              height: 500,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(18),
+                                  color: Colors.white),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    height: 400,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(18),
+                                        color: Colors.white),
+                                    child: SfDataGrid(
+                                      onSelectionChanged:
+                                          (addedRows, removedRows) {
+                                        List<List<dynamic>> selectedRowsData =
+                                            []; //SelectedRows
+                                        for (var selectedRowIndex in controller
+                                            .dataGridController.selectedRows) {
+                                          List<dynamic> rowData = [];
+                                          var selectedRowCells =
+                                              selectedRowIndex.getCells();
+                                          for (var cell in selectedRowCells) {
+                                            rowData.add(cell
+                                                .value); // Convert cell value to string
+                                          }
+                                          selectedRowsData.add(rowData);
+                                        }
+
+                                        controller.firstElements
+                                            .clear(); // Clear previous selected elements
+
+                                        for (var rowData in selectedRowsData) {
+                                          if (rowData.isNotEmpty) {
+                                            controller.firstElements
+                                                .add(rowData[0]);
+                                          }
+                                        }
+
+                                        if (controller
+                                            .firstElements.isNotEmpty) {
+                                          controller.setSelectedRow(
+                                              controller.firstElements.first);
+                                        } else {
+                                          controller.clearSelectedRow();
+                                        }
+                                        // Update visibility of delete button
+                                        controller.updateDeleteButtonVisibility(
+                                            controller
+                                                .firstElements.isNotEmpty);
+                                      },
+                                      controller: controller.dataGridController,
+                                      showCheckboxColumn: true,
+                                      selectionMode: SelectionMode.multiple,
+                                      rowsPerPage: 10,
+                                      allowFiltering: true,
+                                      allowSorting: true,
+                                      swipeMaxOffset: 120,
+                                      allowSwiping: true,
+                                      endSwipeActionsBuilder:
+                                          (BuildContext context,
+                                              DataGridRow row, int rowIndex) {
+                                        return GestureDetector(
+                                            // onTap: () async {},
+                                            // child: Container(
+                                            //     color: Colors.red,
+                                            //     padding: const EdgeInsets.only(
+                                            //         left: 30.0),
+                                            //     alignment: Alignment.centerLeft,
+                                            //     child: const Text('Deactivate',
+                                            //         style: TextStyle(
+                                            //             color: Colors.white)))
+                                            );
+                                      },
+                                      onSwipeUpdate: (details) {
+                                        return true;
+                                      },
+                                      onSwipeEnd: (details) async {},
+                                      startSwipeActionsBuilder:
+                                          (BuildContext context,
+                                              DataGridRow row, int rowIndex) {
+                                        return GestureDetector(
+                                            onTap: () async {
+                                              controller.deleteSolution(
+                                                  controller
+                                                          .solutionModel
+                                                          ?.solutions?[rowIndex]
+                                                          .id ??
+                                                      0);
+
+                                              controller.fetchData();
+                                            },
+                                            child: Container(
+                                                color: Colors.red,
+                                                padding: const EdgeInsets.only(
+                                                    left: 30.0),
+                                                alignment: Alignment.centerLeft,
+                                                child: const Text('Delete',
+                                                    style: TextStyle(
+                                                        color: Colors.white))));
+                                      },
+                                      source: controller.solutionDataSource,
+                                      columnWidthMode:
+                                          ColumnWidthMode.lastColumnFill,
+                                      columns: <GridColumn>[
+                                        GridColumn(
+                                            columnWidthMode:
+                                                ColumnWidthMode.auto,
+                                            columnName: 'ID',
+                                            label: Container(
+                                                padding:
+                                                    const EdgeInsets.all(16.0),
+                                                alignment: Alignment.center,
+                                                child: const Text(
+                                                  'ID',
+                                                ))),
+                                        GridColumn(
+                                            columnWidthMode:
+                                                ColumnWidthMode.auto,
+                                            columnName: 'Standard',
+                                            label: Container(
+                                                padding:
+                                                    const EdgeInsets.all(16.0),
+                                                alignment: Alignment.center,
+                                                child: const Text(
+                                                  'Standard',
+                                                ))),
+                                        GridColumn(
+                                            columnName: 'Board',
+                                            label: Container(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                alignment: Alignment.center,
+                                                child: const Text('Board'))),
+                                        GridColumn(
+                                            columnName: 'Subject',
+                                            label: Container(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                alignment: Alignment.center,
+                                                child: const Text(
+                                                  'Subject',
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ))),
+                                        GridColumn(
+                                            columnName: 'Chapter Name',
+                                            label: Container(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                alignment: Alignment.center,
+                                                child: const Text(
+                                                    'Chapter Name'))),
+                                      ],
+                                    ),
+                                  ),
+                                  Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                            height: 60,
+                                            width: constraints.maxWidth - 40,
+                                            child: SfDataPager(
+                                                availableRowsPerPage: const [
+                                                  10,
+                                                  20,
+                                                  30
+                                                ],
+                                                pageCount: ((controller
+                                                                .solutionModel
+                                                                ?.solutions
+                                                                ?.length
+                                                                .toDouble() ??
+                                                            0) /
+                                                        10)
+                                                    .ceil()
+                                                    .toDouble(),
+                                                direction: Axis.horizontal,
+                                                onPageNavigationStart:
+                                                    (int pageIndex) {},
+                                                delegate: controller
+                                                    .solutionDataSource,
+                                                onPageNavigationEnd:
+                                                    (int pageIndex) {
+                                                  //You can do your customization
+                                                }))
+                                      ])
+                                ],
+                              ),
+                            ),
+                          );
+                        })
+                      : Column(
+                          children: [
+                            Lottie.asset("assets/nodata.json"),
+                            SizedBox(
+                              height: Styles.defaultPadding,
+                            ),
+                            const Text('No Data Found')
+                          ],
+                        )
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: AnimatedShimmer(
+                        height: 600,
+                        width: Get.width,
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(16)),
+                      ),
+                    ),
+            )
           ],
         ),
-        const SizedBox(
-          height: 30,
-        ),
-        SizedBox(
-          height: MediaQuery.of(context).size.height -
-              200, // Adjust the height as needed,
-          child: Obx(() => !controller.isLoading.value
-              ? GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    // Adjust the number of columns as needed
-                    crossAxisSpacing: 8.0,
-                    mainAxisSpacing: 10.0,
-                  ),
-                  itemCount: controller.solutionModel?.solutions?.length,
-                  itemBuilder: (context, index) {
-                    return SolutionWidget(
-                      index: index,
-                      controller: controller,
-                    );
-                  },
-                )
-              : GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    // Adjust the number of columns as needed
-                    crossAxisSpacing: 8.0,
-                    mainAxisSpacing: 10.0,
-                  ),
-                  itemCount: 20,
-                  itemBuilder: (context, index) {
-                    return AnimatedShimmer(
-                      height: 10,
-                      width: 180,
-                      borderRadius: const BorderRadius.all(Radius.circular(16)),
-                      delayInMilliSeconds: Duration(milliseconds: index * 500),
-                    );
-                  },
-                )),
-        )
-      ]),
-    ));
+      ),
+    );
   }
 }
 
@@ -271,7 +486,7 @@ class addSolution extends StatelessWidget {
                   ),
                   SizedBox(height: Styles.defaultPadding),
                   const Text(
-                    ' Choose Solution:',
+                    ' Choose Book:',
                     style: TextStyle(fontSize: 15),
                   ),
                   const SizedBox(
@@ -290,7 +505,7 @@ class addSolution extends StatelessWidget {
 
                           if (result != null) {
                             String? filePath = result.files.single.path;
-                            controller.pdf_link.value = filePath!;
+                            controller.pdf_link.value = filePath ?? '';
                             print("File path: ${controller.pdf_link.value}");
                           } else {}
                         } catch (e) {
@@ -302,7 +517,7 @@ class addSolution extends StatelessWidget {
                       ),
                       validator: (value) {
                         if (value == '' || value == 'No file selected') {
-                          return 'Please choose a book';
+                          return 'Please choose a solution';
                         }
                         return null;
                       },
@@ -334,7 +549,7 @@ class addSolution extends StatelessWidget {
 
                           if (result != null) {
                             String? filePath = result.files.single.path;
-                            controller.coverImage_link.value = filePath!;
+                            controller.coverImage_link.value = filePath ?? '';
                             print(
                                 "File path: ${controller.coverImage_link.value}");
                           } else {}
@@ -386,9 +601,9 @@ class addSolution extends StatelessWidget {
   }
 }
 
-class SolutionWidget extends StatelessWidget {
+class BookWidget extends StatelessWidget {
   int index;
-  SolutionWidget({
+  BookWidget({
     Key? key,
     required this.index,
     required this.controller,

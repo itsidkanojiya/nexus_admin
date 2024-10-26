@@ -108,8 +108,6 @@ class BookRepository {
       final body = jsonDecode(response.body);
       debugPrint('deleteBook body: $body');
       if (response.statusCode == 200) {
-        Get.rawSnackbar(
-            message: 'Deleted Sucessfully!', backgroundColor: Colors.green);
         return true;
       }
     } catch (e) {

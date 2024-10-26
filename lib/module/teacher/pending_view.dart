@@ -81,12 +81,7 @@ class PendingTeacherView extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(18),
                                         color: Colors.white),
                                     child: SfDataGrid(
-                                      onCellTap: ((details) {
-                                        print(details);
-                                        Get.dialog(const AlertDialog(
-                                          content: Text('kd'),
-                                        ));
-                                      }),
+                                      onCellTap: ((details) {}),
                                       rowsPerPage: 10,
                                       allowFiltering: true,
                                       allowSorting: true,

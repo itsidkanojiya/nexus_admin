@@ -87,8 +87,8 @@ class LongController extends GetxController {
       var question = row[2]; // Assuming subject is in the third column
       var answer = row[3]; // Assuming std is in the fourth column
       var solution = row[4]; // Assuming school is in the fifth column
-      var subject = row[4]; // Assuming school is in the fifth column
-      var chapter = row[4]; // Assuming school is in the fifth column
+      var subject = row[5]; // Assuming school is in the fifth column
+      var chapter = row[5]; // Assuming school is in the fifth column
 
       var map = {
         'board': board != null ? int.tryParse(board.value.toString()) ?? 0 : 0,
@@ -100,8 +100,22 @@ class LongController extends GetxController {
         'subject':
             subject != null ? int.tryParse(subject.value.toString()) ?? 0 : 0,
       };
+      var map1 = {
+        'board': 1,
+        'std': 1,
+        'question': 'what is question',
+        'option1': 'as',
+        'option2': 'assd',
+        'option3': 'sad',
+        'option4': 'saf',
+        'solution': 'sad',
+        'answer': 'ads',
+        'chapter': 4,
+        'subject':
+            subject != null ? int.tryParse(subject.value.toString()) ?? 0 : 0,
+      };
       print(map);
-      var result = await QuestionRepository().addLong(map);
+      var result = await QuestionRepository().addLong(map1);
       if (result == false) {
         Get.rawSnackbar(
             message: 'error in excel row ${row[0]!.rowIndex}',

@@ -5,6 +5,7 @@ import 'package:lexus_admin/models/board_model.dart';
 import 'package:lexus_admin/models/book_model.dart';
 import 'package:lexus_admin/models/subject_model.dart';
 import 'package:lexus_admin/repository/book_repository.dart';
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class BookController extends GetxController {
   var selectedBoard = Rx<Boards?>(null);
@@ -20,9 +21,11 @@ class BookController extends GetxController {
   var isValid = false.obs;
   RxBool isLoading = false.obs;
   RxBool isAdding = false.obs;
-  BookModel? bookModel;
+  BookModel? solutionModel;
   BoardModel? boardModel;
-
+  var isRowSelected = false.obs;
+  var selectedRow = 0.obs;
+  var isDeleteButtonVisible = false.obs;
   final List<String> standardLevels = [
     '1',
     '2',
@@ -37,10 +40,29 @@ class BookController extends GetxController {
     '11',
     '12',
   ];
+  List<int> firstElements = [];
+  void setSelectedRow(dynamic row) {
+    selectedRow.value = row;
+    isRowSelected.value = true;
+  }
+
+  late BookDataSource bookDataSource;
+  final DataGridController dataGridController = DataGridController();
+
+  void updateDeleteButtonVisibility(bool isVisible) {
+    isDeleteButtonVisible.value = isVisible;
+  }
+
+  void clearSelectedRow() {
+    selectedRow.value = 0;
+    firstElements = [];
+    isRowSelected.value = false;
+  }
 
   @override
   void onInit() {
     fetchData();
+
     super.onInit();
   }
 
@@ -54,7 +76,11 @@ class BookController extends GetxController {
 
   void deleteBook(int id) async {
     isLoading(true);
-    await BookRepository().deleteBook(id);
+    var success = await BookRepository().deleteBook(id);
+    if (success == true) {
+      Get.rawSnackbar(
+          message: 'Deleted Sucessfully!', backgroundColor: Colors.green);
+    }
     isLoading(false);
     fetchData();
   }
@@ -62,6 +88,7 @@ class BookController extends GetxController {
   void addBook() async {
     isAdding(true);
     var map = {
+      'subject': selectedSubject.value!.id,
       'name': selectedSubject.value!.name.toString(),
       'std': selectedStandard.value,
       'board': selectedBoard.value!.id,
@@ -84,11 +111,71 @@ class BookController extends GetxController {
     isValid.value = false;
   }
 
+  void MultideleteMcq(List<int> ids) async {
+    isLoading(true);
+
+    bool success = false; // Initialize success to false
+    for (int id in ids) {
+      success = await BookRepository().deleteBook(id);
+      // Note: this will override success on each iteration
+    }
+    isLoading(false);
+
+    if (success) {
+      // Check success after the loop
+      Get.rawSnackbar(
+          message: 'Deleted ${ids.length} Book(s) successfully!',
+          backgroundColor: Colors.green);
+    } else {
+      Get.rawSnackbar(message: 'No Books deleted', backgroundColor: Colors.red);
+    }
+    firstElements = [];
+    fetchData();
+  }
+
   void fetchData() async {
     isLoading(true);
-    bookModel = await BookRepository().getBooks();
+    solutionModel = await BookRepository().getBooks();
     boardModel = await BookRepository().getBoard();
     subjectModel = await BookRepository().getSubject();
+    bookDataSource = BookDataSource(bookData: solutionModel?.books ?? []);
     isLoading(false);
+  }
+}
+
+class BookDataSource extends DataGridSource {
+  /// Creates the employee data source class with required details.
+  BookDataSource({required List<Books> bookData}) {
+    _mcqData = bookData
+        .map<DataGridRow>((e) => DataGridRow(cells: [
+              DataGridCell<int>(columnName: 'ID', value: e.id),
+              DataGridCell<int>(columnName: 'Standard', value: e.std),
+
+              DataGridCell<String>(columnName: 'Board', value: e.boardName),
+              DataGridCell<String>(columnName: 'Subject', value: e.subjectName),
+
+              DataGridCell<String>(
+                  columnName: 'Chapter Name', value: e.chapterName),
+
+              // DataGridCell<String>(columnName: 'salary', value: e.subject),
+            ]))
+        .toList();
+  }
+
+  List<DataGridRow> _mcqData = [];
+
+  @override
+  List<DataGridRow> get rows => _mcqData;
+
+  @override
+  DataGridRowAdapter buildRow(DataGridRow row) {
+    return DataGridRowAdapter(
+        cells: row.getCells().map<Widget>((e) {
+      return Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(8.0),
+        child: Text(e.value.toString()),
+      );
+    }).toList());
   }
 }

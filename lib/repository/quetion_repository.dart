@@ -236,12 +236,12 @@ class QuestionRepository {
       );
 
       final body = jsonDecode(response.body);
-      debugPrint('addQuestion body: $body');
+      debugPrint('addBlank body: $body');
       if (response.statusCode == 201) {
         return true;
       }
     } catch (e) {
-      debugPrint('Error While addQuestion() ${e.toString()}');
+      debugPrint('Error While addBlank() ${e.toString()}');
       return false;
     }
     Get.rawSnackbar(

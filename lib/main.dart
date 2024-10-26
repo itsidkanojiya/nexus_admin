@@ -9,11 +9,11 @@ import 'package:lexus_admin/module/auth/splash_view.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
-  runApp(const LexusAdmin());
+  runApp(const NexusAdmin());
 }
 
-class LexusAdmin extends StatelessWidget {
-  const LexusAdmin({Key? key}) : super(key: key);
+class NexusAdmin extends StatelessWidget {
+  const NexusAdmin({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

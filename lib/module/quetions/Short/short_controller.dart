@@ -84,8 +84,8 @@ class ShortController extends GetxController {
       var question = row[2]; // Assuming subject is in the third column
       var answer = row[3]; // Assuming std is in the fourth column
       var solution = row[4]; // Assuming school is in the fifth column
-      var subject = row[4]; // Assuming school is in the fifth column
-      var chapter = row[4]; // Assuming school is in the fifth column
+      var subject = row[5]; // Assuming school is in the fifth column
+      var chapter = row[6]; // Assuming school is in the fifth column
 
       var map = {
         'board': board != null ? int.tryParse(board.value.toString()) ?? 0 : 0,

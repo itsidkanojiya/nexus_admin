@@ -7,6 +7,8 @@ import 'package:lexus_admin/models/board_model.dart';
 import 'package:lexus_admin/models/subject_model.dart';
 import 'package:lexus_admin/module/books/book_controller.dart';
 import 'package:lexus_admin/styles/styles.dart';
+import 'package:lottie/lottie.dart';
+import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class BookView extends StatelessWidget {
   BookView({Key? key}) : super(key: key);
@@ -14,168 +16,289 @@ class BookView extends StatelessWidget {
   var controller = Get.isRegistered<BookController>()
       ? Get.find<BookController>()
       : Get.put(BookController());
+
   @override
   Widget build(BuildContext context) {
     return AppLayout(
-        content: SingleChildScrollView(
-      child: Column(children: [
-        Row(
-          children: [
-            const Expanded(child: SizedBox()),
-            ElevatedButton.icon(
-                onPressed: () {
-                  controller.clearForm();
-                  Get.dialog(addSubject(
-                    controller: controller,
-                    id: 0,
-                    formKey: formKey,
-                  ));
-                },
-                icon: const Icon(Icons.add),
-                label: const Text('Add Subject')),
-            const SizedBox(
-              width: 5,
-            ),
-            ElevatedButton.icon(
-                onPressed: () {
-                  controller.clearForm();
-                  Get.dialog(addBook(
-                    controller: controller,
-                    id: 0,
-                    formKey: formKey,
-                  ));
-                },
-                icon: const Icon(Icons.add),
-                label: const Text('Add Books')),
-            const SizedBox(
-              width: 5,
-            ),
-            ElevatedButton.icon(
-                onPressed: () {
-                  controller.fetchData();
-                },
-                icon: const Icon(Icons.refresh),
-                label: const Text('Refresh')),
-          ],
-        ),
-        const SizedBox(
-          height: 30,
-        ),
-        SizedBox(
-          height: MediaQuery.of(context).size.height -
-              200, // Adjust the height as needed,
-          child: Obx(() => !controller.isLoading.value
-              ? GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    // Adjust the number of columns as needed
-                    crossAxisSpacing: 8.0,
-                    mainAxisSpacing: 10.0,
-                  ),
-                  itemCount: controller.bookModel?.books?.length,
-                  itemBuilder: (context, index) {
-                    return BookWidget(
-                      index: index,
-                      controller: controller,
-                    );
-                  },
-                )
-              : GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    // Adjust the number of columns as needed
-                    crossAxisSpacing: 8.0,
-                    mainAxisSpacing: 10.0,
-                  ),
-                  itemCount: 20,
-                  itemBuilder: (context, index) {
-                    return AnimatedShimmer(
-                      height: 10,
-                      width: 180,
-                      borderRadius: const BorderRadius.all(Radius.circular(16)),
-                      delayInMilliSeconds: Duration(milliseconds: index * 500),
-                    );
-                  },
-                )),
-        )
-      ]),
-    ));
-  }
-}
-
-class addSubject extends StatelessWidget {
-  const addSubject(
-      {Key? key,
-      required this.controller,
-      required this.id,
-      required this.formKey})
-      : super(key: key);
-  final int id;
-  final BookController controller;
-  final GlobalKey<FormState> formKey;
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: Theme.of(context).colorScheme.background,
-      title: Center(
-        child: Text('${id == 0 ? 'Add' : 'Edit'} Subject'),
-      ),
       content: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SizedBox(
-            width: 300,
-            child: Form(
-              key: formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    ' Subject Name:',
-                    style: TextStyle(fontSize: 15),
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  TextFormField(
-                    controller: controller.subjectText,
-                    // decoration: const InputDecoration(
-                    //   labelText: '0',
-                    // ),
-                    validator: (value) {
-                      final bool emailValid = RegExp(
-                              r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                          .hasMatch(value ?? "");
-                      if (value!.isEmpty) {
-                        return 'Please enter your chapter number';
-                      }
-                      return null;
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-      actions: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Column(
           children: [
-            ElevatedButton(
-              onPressed: () async {
-                if (formKey.currentState!.validate()) {
-                  controller.addSubject();
-                  controller.fetchData();
-                  Navigator.of(context).pop();
-                }
-              },
-              child: Text('${id == 0 ? 'Add' : 'Edit'} Subject'),
+            Row(
+              children: [
+                SizedBox(
+                  width: Styles.defaultPadding,
+                ),
+                // const Text(
+                //   'Active True or False',
+                //   style: TextStyle(
+                //       fontSize: 20,
+                //       color: Colors.green,
+                //       fontWeight: FontWeight.w700),
+                // ),
+                const Expanded(child: SizedBox()),
+
+                SizedBox(
+                  width: Styles.defaultPadding,
+                ),
+                ElevatedButton.icon(
+                    onPressed: () {
+                      controller.clearForm();
+                      Get.dialog(addBook(
+                        controller: controller,
+                        id: 0,
+                        formKey: formKey,
+                      ));
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Book')),
+
+                SizedBox(
+                  width: Styles.defaultPadding,
+                ),
+                ElevatedButton.icon(
+                    onPressed: () {
+                      controller.fetchData();
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Refresh')),
+                SizedBox(
+                  width: Styles.defaultPadding,
+                ),
+                Obx(() => Visibility(
+                      visible: controller.isRowSelected.value,
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.delete),
+                        label: const Text('Delete'),
+                        onPressed: () {
+                          controller.MultideleteMcq(controller.firstElements);
+                          // Handle delete action here
+                          controller.clearSelectedRow();
+                        },
+                      ),
+                    )),
+              ],
             ),
+            SizedBox(height: Styles.defaultPadding * 2),
+            Obx(
+              () => !controller.isLoading.value
+                  ? controller.solutionModel!.books!.isNotEmpty
+                      ? LayoutBuilder(builder: (context, constraints) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Container(
+                              height: 500,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(18),
+                                  color: Colors.white),
+                              child: Column(
+                                children: [
+                                  Container(
+                                    height: 400,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(18),
+                                        color: Colors.white),
+                                    child: SfDataGrid(
+                                      onSelectionChanged:
+                                          (addedRows, removedRows) {
+                                        List<List<dynamic>> selectedRowsData =
+                                            []; //SelectedRows
+                                        for (var selectedRowIndex in controller
+                                            .dataGridController.selectedRows) {
+                                          List<dynamic> rowData = [];
+                                          var selectedRowCells =
+                                              selectedRowIndex.getCells();
+                                          for (var cell in selectedRowCells) {
+                                            rowData.add(cell
+                                                .value); // Convert cell value to string
+                                          }
+                                          selectedRowsData.add(rowData);
+                                        }
+
+                                        controller.firstElements
+                                            .clear(); // Clear previous selected elements
+
+                                        for (var rowData in selectedRowsData) {
+                                          if (rowData.isNotEmpty) {
+                                            controller.firstElements
+                                                .add(rowData[0]);
+                                          }
+                                        }
+
+                                        if (controller
+                                            .firstElements.isNotEmpty) {
+                                          controller.setSelectedRow(
+                                              controller.firstElements.first);
+                                        } else {
+                                          controller.clearSelectedRow();
+                                        }
+                                        // Update visibility of delete button
+                                        controller.updateDeleteButtonVisibility(
+                                            controller
+                                                .firstElements.isNotEmpty);
+                                      },
+                                      controller: controller.dataGridController,
+                                      showCheckboxColumn: true,
+                                      selectionMode: SelectionMode.multiple,
+                                      rowsPerPage: 10,
+                                      allowFiltering: true,
+                                      allowSorting: true,
+                                      swipeMaxOffset: 120,
+                                      allowSwiping: true,
+                                      endSwipeActionsBuilder:
+                                          (BuildContext context,
+                                              DataGridRow row, int rowIndex) {
+                                        return GestureDetector(
+                                            // onTap: () async {},
+                                            // child: Container(
+                                            //     color: Colors.red,
+                                            //     padding: const EdgeInsets.only(
+                                            //         left: 30.0),
+                                            //     alignment: Alignment.centerLeft,
+                                            //     child: const Text('Deactivate',
+                                            //         style: TextStyle(
+                                            //             color: Colors.white)))
+                                            );
+                                      },
+                                      onSwipeUpdate: (details) {
+                                        return true;
+                                      },
+                                      onSwipeEnd: (details) async {},
+                                      startSwipeActionsBuilder:
+                                          (BuildContext context,
+                                              DataGridRow row, int rowIndex) {
+                                        return GestureDetector(
+                                            onTap: () async {
+                                              controller.deleteBook(controller
+                                                      .solutionModel
+                                                      ?.books?[rowIndex]
+                                                      .id ??
+                                                  0);
+
+                                              controller.fetchData();
+                                            },
+                                            child: Container(
+                                                color: Colors.red,
+                                                padding: const EdgeInsets.only(
+                                                    left: 30.0),
+                                                alignment: Alignment.centerLeft,
+                                                child: const Text('Delete',
+                                                    style: TextStyle(
+                                                        color: Colors.white))));
+                                      },
+                                      source: controller.bookDataSource,
+                                      columnWidthMode:
+                                          ColumnWidthMode.lastColumnFill,
+                                      columns: <GridColumn>[
+                                        GridColumn(
+                                            columnWidthMode:
+                                                ColumnWidthMode.auto,
+                                            columnName: 'ID',
+                                            label: Container(
+                                                padding:
+                                                    const EdgeInsets.all(16.0),
+                                                alignment: Alignment.center,
+                                                child: const Text(
+                                                  'ID',
+                                                ))),
+                                        GridColumn(
+                                            columnWidthMode:
+                                                ColumnWidthMode.auto,
+                                            columnName: 'Standard',
+                                            label: Container(
+                                                padding:
+                                                    const EdgeInsets.all(16.0),
+                                                alignment: Alignment.center,
+                                                child: const Text(
+                                                  'Standard',
+                                                ))),
+                                        GridColumn(
+                                            columnName: 'Board',
+                                            label: Container(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                alignment: Alignment.center,
+                                                child: const Text('Board'))),
+                                        GridColumn(
+                                            columnName: 'Subject',
+                                            label: Container(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                alignment: Alignment.center,
+                                                child: const Text(
+                                                  'Subject',
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ))),
+                                        GridColumn(
+                                            columnName: 'Chapter Name',
+                                            label: Container(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                alignment: Alignment.center,
+                                                child: const Text(
+                                                    'Chapter Name'))),
+                                      ],
+                                    ),
+                                  ),
+                                  Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                            height: 60,
+                                            width: constraints.maxWidth - 40,
+                                            child: SfDataPager(
+                                                availableRowsPerPage: const [
+                                                  10,
+                                                  20,
+                                                  30
+                                                ],
+                                                pageCount: ((controller
+                                                                .solutionModel
+                                                                ?.books
+                                                                ?.length
+                                                                .toDouble() ??
+                                                            0) /
+                                                        10)
+                                                    .ceil()
+                                                    .toDouble(),
+                                                direction: Axis.horizontal,
+                                                onPageNavigationStart:
+                                                    (int pageIndex) {},
+                                                delegate:
+                                                    controller.bookDataSource,
+                                                onPageNavigationEnd:
+                                                    (int pageIndex) {
+                                                  //You can do your customization
+                                                }))
+                                      ])
+                                ],
+                              ),
+                            ),
+                          );
+                        })
+                      : Column(
+                          children: [
+                            Lottie.asset("assets/nodata.json"),
+                            SizedBox(
+                              height: Styles.defaultPadding,
+                            ),
+                            const Text('No Data Found')
+                          ],
+                        )
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: AnimatedShimmer(
+                        height: 600,
+                        width: Get.width,
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(16)),
+                      ),
+                    ),
+            )
           ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -381,7 +504,7 @@ class addBook extends StatelessWidget {
 
                           if (result != null) {
                             String? filePath = result.files.single.path;
-                            controller.pdf_link.value = filePath!;
+                            controller.pdf_link.value = filePath ?? '';
                             print("File path: ${controller.pdf_link.value}");
                           } else {}
                         } catch (e) {
@@ -425,7 +548,7 @@ class addBook extends StatelessWidget {
 
                           if (result != null) {
                             String? filePath = result.files.single.path;
-                            controller.coverImage_link.value = filePath!;
+                            controller.coverImage_link.value = filePath ?? '';
                             print(
                                 "File path: ${controller.coverImage_link.value}");
                           } else {}
@@ -494,7 +617,7 @@ class BookWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Image.network(
-            controller.bookModel?.books?[index].coverLink ?? '',
+            controller.solutionModel?.books?[index].coverLink ?? '',
             height: 200,
             width: double.infinity,
             fit: BoxFit.fill,
@@ -504,7 +627,7 @@ class BookWidget extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  controller.bookModel?.books?[index].name ?? '',
+                  controller.solutionModel?.books?[index].name ?? '',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -512,7 +635,7 @@ class BookWidget extends StatelessWidget {
               IconButton(
                   onPressed: () {
                     controller.deleteBook(
-                        controller.bookModel?.books?[index].id ?? 0);
+                        controller.solutionModel?.books?[index].id ?? 0);
                   },
                   icon: const Icon(
                     Icons.delete,
