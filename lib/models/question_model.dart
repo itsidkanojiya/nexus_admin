@@ -24,7 +24,7 @@ class QuestionModel {
 class Questions {
   int? id;
   String? board;
-  int? subject;
+  String? subject;
   int? std;
   int? chapter;
   String? question;
@@ -35,7 +35,6 @@ class Questions {
   void deletedAt;
   String? type;
   void options;
-  String? boardName;
 
   Questions(
       {this.id,
@@ -50,8 +49,7 @@ class Questions {
       this.updatedAt,
       this.deletedAt,
       this.type,
-      this.options,
-      this.boardName});
+      this.options});
 
   Questions.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -64,10 +62,9 @@ class Questions {
     solution = json['solution'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-
+    deletedAt = json['deleted_at'];
     type = json['type'];
-
-    boardName = json['board_name'];
+    options = json['options'];
   }
 
   Map<String, dynamic> toJson() {
@@ -85,7 +82,6 @@ class Questions {
 
     data['type'] = type;
 
-    data['board_name'] = boardName;
     return data;
   }
 }

@@ -172,7 +172,7 @@ class McqController extends GetxController {
           List.filled(4, ''); // Fill missing options with empty strings
       excelData.add([
         TextCellValue(user.id.toString()),
-        TextCellValue(user.boardName.toString()),
+        TextCellValue(user.board.toString()),
         TextCellValue(user.std.toString()),
         TextCellValue(user.subject.toString()),
         TextCellValue(user.chapter.toString()),
@@ -315,7 +315,7 @@ class McqDataSource extends DataGridSource {
             columnName: 'Option 4',
             value: options.length > 3 ? options[3] ?? '' : ''),
         DataGridCell<String>(columnName: 'Subject', value: e.subject),
-        DataGridCell<String>(columnName: 'Board', value: e.boardName),
+        DataGridCell<String>(columnName: 'Board', value: e.board),
         DataGridCell<int>(columnName: 'Standard', value: e.std),
       ]);
     }).toList();

@@ -153,7 +153,7 @@ class LongController extends GetxController {
     for (Questions user in questions.questions ?? []) {
       excelData.add([
         TextCellValue(user.id.toString()),
-        TextCellValue(user.boardName.toString()),
+        TextCellValue(user.board.toString()),
         TextCellValue(user.std.toString()),
         TextCellValue(user.chapter.toString()),
         TextCellValue(user.question.toString()),
@@ -259,8 +259,9 @@ class LongDataSource extends DataGridSource {
     _mcqData = longData
         .map<DataGridRow>((e) => DataGridRow(cells: [
               DataGridCell<int>(columnName: 'id', value: e.id),
-              DataGridCell<String>(columnName: 'Board', value: e.boardName),
               DataGridCell<String>(columnName: 'Question', value: e.question),
+              DataGridCell<String>(columnName: 'Subject', value: e.subject),
+              DataGridCell<String>(columnName: 'Board', value: e.board),
               DataGridCell<int>(columnName: 'Standard', value: e.std),
               // DataGridCell<String>(columnName: 'salary', value: e.subject),
             ]))

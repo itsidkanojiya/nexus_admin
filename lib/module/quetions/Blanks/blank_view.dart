@@ -291,13 +291,6 @@ class BlankView extends StatelessWidget {
                                                   'ID',
                                                 ))),
                                         GridColumn(
-                                            columnName: 'Board',
-                                            label: Container(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                alignment: Alignment.center,
-                                                child: const Text('Board'))),
-                                        GridColumn(
                                             columnName: 'Question',
                                             label: Container(
                                                 padding:
@@ -308,6 +301,20 @@ class BlankView extends StatelessWidget {
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                 ))),
+                                        GridColumn(
+                                            columnName: 'Subject',
+                                            label: Container(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                alignment: Alignment.center,
+                                                child: const Text('Subject'))),
+                                        GridColumn(
+                                            columnName: 'Board',
+                                            label: Container(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                alignment: Alignment.center,
+                                                child: const Text('Board'))),
                                         GridColumn(
                                             columnName: 'Standard',
                                             label: Container(

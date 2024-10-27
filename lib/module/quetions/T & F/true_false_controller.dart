@@ -170,7 +170,7 @@ class TrueFalseController extends GetxController {
     for (Questions user in questions.questions ?? []) {
       excelData.add([
         TextCellValue(user.id.toString()),
-        TextCellValue(user.boardName.toString()),
+        TextCellValue(user.board.toString()),
         TextCellValue(user.std.toString()),
         TextCellValue(user.chapter.toString()),
         TextCellValue(user.question.toString()),
@@ -246,6 +246,39 @@ class TrueFalseController extends GetxController {
     selectedBoard = Rx<Boards?>(null);
     file.value = '';
     isAdding(false);
+  }
+}
+
+List<DataGridRow> _truefalseData = [];
+
+@override
+List<DataGridRow> get rows => _truefalseData;
+
+class TruefalseDataSource extends DataGridSource {
+  /// Creates the employee data source class with required details.
+  TruefalseDataSource({required List<Questions> truefalseData}) {
+    _truefalseData = truefalseData
+        .map<DataGridRow>((e) => DataGridRow(cells: [
+              DataGridCell<int>(columnName: 'id', value: e.id),
+              DataGridCell<String>(columnName: 'Question', value: e.question),
+              DataGridCell<String>(columnName: 'Subject', value: e.subject),
+              DataGridCell<String>(columnName: 'Board', value: e.board),
+              DataGridCell<int>(columnName: 'Standard', value: e.std),
+              // DataGridCell<String>(columnName: 'salary', value: e.subject),
+            ]))
+        .toList();
+  }
+
+  @override
+  DataGridRowAdapter buildRow(DataGridRow row) {
+    return DataGridRowAdapter(
+        cells: row.getCells().map<Widget>((e) {
+      return Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.all(8.0),
+        child: Text(e.value.toString()),
+      );
+    }).toList());
   }
 }
 
