@@ -144,7 +144,10 @@ class _NavigationPanelState extends State<NavigationPanel> {
                             ),
                             NavigationButton(
                               index: 5,
-                              widget: AuthService.indexValue.value == 5
+                            ),
+                            NavigationButton(
+                              index: 6,
+                              widget: AuthService.indexValue.value == 6
                                   ? Obx(
                                       () => Column(
                                         children: [

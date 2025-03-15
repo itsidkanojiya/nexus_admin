@@ -16,6 +16,7 @@ class NavigationButton extends StatelessWidget {
     'Analysis',
     'Teachers',
     'Students',
+    'Change Subject',
     'Books',
     'Solution',
     'Quetions'
@@ -28,7 +29,7 @@ class NavigationButton extends StatelessWidget {
           AuthService.indexValue.value = index;
         },
         child: Container(
-          width: 170,
+          width: 200,
           margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),

@@ -4,6 +4,7 @@ enum NavigationItems {
   dashBoard,
   teachers,
   srudents,
+  chnagesubject,
   books,
   solution,
   quetions,
@@ -18,6 +19,8 @@ extension NavigationItemsExtensions on NavigationItems {
         return Icons.people;
       case NavigationItems.srudents:
         return Icons.man;
+      case NavigationItems.chnagesubject:
+        return Icons.notification_important_outlined;
       case NavigationItems.books:
         return Icons.menu_book_sharp;
       case NavigationItems.solution:

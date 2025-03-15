@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:lexus_admin/module/analysis/analysis_view.dart';
 import 'package:lexus_admin/module/auth/auth_service.dart';
 import 'package:lexus_admin/module/books/book_view.dart';
+import 'package:lexus_admin/module/change_subject/change_subject_view.dart';
 import 'package:lexus_admin/module/home/home_view.dart';
 import 'package:lexus_admin/module/quetions/Blanks/blank_view.dart';
 import 'package:lexus_admin/module/quetions/Long/long_view.dart';
@@ -31,10 +32,12 @@ class NavigationView extends StatelessWidget {
         case 2:
           return StudentView();
         case 3:
-          return BookView();
+          return ChangeSubjectView();
         case 4:
-          return SolutionView();
+          return BookView();
         case 5:
+          return SolutionView();
+        case 6:
           return getQuetionView();
         default:
           return HomeView();
